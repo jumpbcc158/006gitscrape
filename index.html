@@ -1,0 +1,256 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Competitor Watch — News</title>
+  <style>
+    :root{
+      --bg:#f5f7fb; --card:#ffffff; --ink:#0f172a; --muted:#475569;
+      --brand:#00a99d; --brand-dark:#038a81; --chip:#e2f7f4;
+      --ring:rgba(0,169,157,.35); --max:1200px;
+    }
+    html,body{height:100%}
+    body{margin:0; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial; color:var(--ink); background:var(--bg)}
+    .wrap{max-width:var(--max); margin:0 auto; padding:24px}
+    header{background:linear-gradient(90deg, var(--brand), #1cc2b5); color:#fff}
+    header .wrap{padding:28px 24px 24px}
+    .brand{display:flex; align-items:center; gap:14px}
+    /* Replace the white square: use your logo or hide it (display:none) */
+    .logo{width:42px; height:42px; border-radius:10px; background:#fff; display:grid; place-items:center; overflow:hidden}
+    .logo img{width:90%; height:90%; object-fit:contain}
+    h1{margin:0; font-size:28px; letter-spacing:.2px}
+    .muted{color:rgba(255,255,255,.9); font-size:14px}
+
+    /* Controls */
+    .controls{display:grid; grid-template-columns:240px 1fr; gap:12px; margin-top:16px; align-items:center}
+    .control select{width:100%; padding:11px 12px; border-radius:10px; border:1px solid #d7dee9; background:#fff; outline:none}
+    .control select:focus{border-color:var(--brand); box-shadow:0 0 0 4px var(--ring)}
+    .toggles{display:flex; gap:16px; align-items:center; color:#fff}
+    .toggles label{display:flex; gap:8px; align-items:center; font-size:14px}
+
+    /* Grid */
+    .grid{display:grid; grid-template-columns:repeat(12,1fr); gap:16px; margin-top:18px}
+    .card{grid-column: span 4; background:var(--card); border-radius:16px; box-shadow:0 8px 24px rgba(15,23,42,.06); overflow:hidden; display:flex; flex-direction:column; transition:transform .08s ease, box-shadow .08s ease}
+    .card:hover{transform:translateY(-2px); box-shadow:0 10px 28px rgba(15,23,42,.10)}
+    .thumb{width:100%; aspect-ratio:16/9; background:#eef2f7; object-fit:cover}
+    .pad{padding:14px 16px}
+    .title{font-weight:700; font-size:16px; line-height:1.35; margin:0 0 6px}
+    .summary{color:var(--muted); font-size:14px; line-height:1.45; display:-webkit-box; -webkit-line-clamp:4; -webkit-box-orient:vertical; overflow:hidden}
+    .meta{display:flex; gap:8px; align-items:center; margin:10px 0 12px; font-size:12px; color:#64748b}
+    .meta .chip{background:var(--chip); color:var(--brand-dark); padding:4px 8px; border-radius:999px}
+    .aisum{margin-top:10px; padding:10px; border-radius:10px; background:#f8fafc; border:1px solid #e2e8f0; font-size:13px; color:#334155}
+    .aisum b{font-weight:600}
+    .actions{display:flex; gap:10px; margin-top:auto; padding:0 16px 14px}
+    .link{flex:1; text-align:center; text-decoration:none; padding:10px 12px; border-radius:10px; border:1px solid #d7dee9; background:#fff}
+    .link.primary{background:var(--brand); color:#fff; border-color:transparent}
+
+    .empty{background:#fff; border:1px dashed #cbd5e1; padding:20px; border-radius:12px; text-align:center; color:#64748b}
+    .pager{display:flex; gap:12px; justify-content:center; align-items:center; margin:24px 0}
+    .btn{padding:10px 12px; border-radius:10px; border:1px solid #d7dee9; background:#fff; cursor:pointer}
+    .btn:disabled{opacity:.5; cursor:not-allowed}
+
+    @media (max-width: 1024px){ .card{grid-column: span 6} }
+    @media (max-width: 640px){
+      .controls{grid-template-columns:1fr}
+      .card{grid-column: span 12}
+      header .wrap{padding-bottom:20px}
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="wrap">
+      <div class="brand">
+        <div class="logo" title="Dextra">
+          <!-- Put your logo here; or set style="display:none" to hide the block -->
+          <img src="https://raw.githubusercontent.com/jumpbcc158/Logos/main/Dextra_Icon.png" alt="Dextra">
+        </div>
+        <div>
+          <h1>Competitor Watch — News</h1>
+          <div class="muted">Live view of scraped articles from <code>export_combined.csv</code></div>
+        </div>
+      </div>
+
+      <div class="controls" aria-label="filters">
+        <div class="control">
+          <select id="source">
+            <option value="">All Companies</option>
+          </select>
+        </div>
+        <div class="toggles">
+          <label><input type="checkbox" id="aiToggle"> Show AI summary (client-side)</label>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <div id="status" class="empty">Loading articles…</div>
+    <section id="grid" class="grid" hidden></section>
+    <nav id="pager" class="pager" hidden>
+      <button class="btn" id="prev">Prev</button>
+      <span id="pageInfo" class="muted"></span>
+      <button class="btn" id="next">Next</button>
+    </nav>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+  <script>
+    const byId = (id) => document.getElementById(id);
+    const el = (tag, cls) => { const n=document.createElement(tag); if(cls) n.className=cls; return n };
+
+    const STATE = { raw:[], filtered:[], page:1, pageSize:12, sort:'date_desc', source:'', showAI:false };
+
+    function parseDate(v){
+      if(!v) return null;
+      const d = new Date(v);
+      if(!isNaN(d)) return d;
+      const m = String(v).match(/(\d{1,2})[\/.\-](\d{1,2})[\/.\-](\d{2,4})/);
+      if(m){ const [_,d1,m1,y1]=m; return new Date(Number(y1.length===2?('20'+y1):y1), Number(m1)-1, Number(d1)); }
+      return null;
+    }
+
+    function loadCSV(){
+      Papa.parse('export_combined.csv', {
+        download:true, header:true, skipEmptyLines:true,
+        complete: (res)=>{
+          const rows = res.data.map(r=>({
+            Title: r.Title?.trim()||'',
+            DateText: r.DateText?.trim()||'',
+            DateObj: parseDate(r.Date || r.DateText) || null,
+            Link: r.Link?.trim()||'',
+            Image: r.Image?.trim()||'',
+            Summary: r.Summary?.trim()||'',
+            Source: r.Source?.trim()||''
+          }));
+          STATE.raw = rows;
+          hydrateSources(rows);
+          applyFilters();
+        },
+        error: ()=>{ byId('status').textContent = 'Could not load export_combined.csv.'; }
+      });
+    }
+
+    function hydrateSources(rows){
+      const sel = byId('source');
+      const uniq = [...new Set(rows.map(r=>r.Source).filter(Boolean))].sort();
+      uniq.forEach(s=>{ const o=el('option'); o.value=s; o.textContent=s; sel.appendChild(o); });
+    }
+
+    function applyFilters(){
+      const {source, sort} = STATE;
+      let rows = STATE.raw.filter(r => !source || r.Source===source);
+
+      rows.sort((a,b)=>{
+        switch(sort){
+          case 'title_asc': return a.Title.localeCompare(b.Title);
+          case 'title_desc': return b.Title.localeCompare(a.Title);
+          case 'date_asc': return (a.DateObj?.getTime()||0) - (b.DateObj?.getTime()||0);
+          default: return (b.DateObj?.getTime()||0) - (a.DateObj?.getTime()||0);
+        }
+      });
+
+      STATE.filtered = rows;
+      STATE.page = 1;
+      render();
+    }
+
+    // --- Simple client-side "AI" summary (extract + trim) ---
+    function aiSummarize(title, text, maxWords=28){
+      const base = (text && text.length>30 ? text : `${title}. ${text||''}`).replace(/\s+/g,' ').trim();
+      if(!base) return '';
+      // pick first sentence that looks informative
+      const sentences = base.split(/(?<=[.!?])\s+/).filter(s=>s.length>0);
+      let candidate = sentences[0] || base;
+      // if very long, pick the sentence with most informative words
+      if(sentences.length>1 && candidate.split(' ').length < 10){
+        candidate = sentences.reduce((a,b)=> score(b)>score(a)? b:a);
+      }
+      // trim to N words
+      const words = candidate.split(/\s+/);
+      const short = words.length>maxWords ? words.slice(0,maxWords).join(' ')+'…' : candidate;
+      return short;
+
+      function score(s){
+        // crude scoring: prefer sentences with numbers, verbs-ish, and keywords
+        let sc = 0;
+        if(/\d/.test(s)) sc+=2;
+        if(/\b(launch|sign|win|acquire|expand|open|install|supply|approve|certif|announce|partner|contract)\w*/i.test(s)) sc+=3;
+        sc += Math.min(6, (s.match(/[A-Za-z]{6,}/g)||[]).length/3);
+        return sc;
+      }
+    }
+
+    function render(){
+      const grid = byId('grid');
+      const status = byId('status');
+      const pager = byId('pager');
+
+      const total = STATE.filtered.length;
+      if(!total){
+        grid.hidden = true; pager.hidden = true; status.hidden = false; status.textContent = 'No articles for this company.';
+        return;
+      }
+
+      status.hidden = true; grid.hidden = false; pager.hidden = false; grid.innerHTML = '';
+
+      const start = (STATE.page-1)*STATE.pageSize;
+      const end = start + STATE.pageSize;
+      const rows = STATE.filtered.slice(start, end);
+
+      rows.forEach(r=> grid.appendChild(card(r)) );
+
+      const totalPages = Math.max(1, Math.ceil(total/STATE.pageSize));
+      byId('pageInfo').textContent = `Page ${STATE.page} / ${totalPages}`;
+      byId('prev').disabled = STATE.page<=1; byId('next').disabled = STATE.page>=totalPages;
+    }
+
+    function card(row){
+      const c = el('article','card');
+      const img = el('img','thumb');
+      img.loading = 'lazy';
+      img.alt = row.Title || 'thumbnail';
+      img.src = row.Image || 'data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22400%22 height=%22225%22><rect width=%22400%22 height=%22225%22 fill=%22%23eef2f7%22/><text x=%2250%25%22 y=%2250%25%22 dominant-baseline=%22middle%22 text-anchor=%22middle%22 fill=%22%2394a3b8%22 font-size=%2220%22 font-family=%22Segoe UI%22>No image</text></svg>';
+      c.appendChild(img);
+
+      const p = el('div','pad');
+      const h = el('h2','title'); h.textContent = row.Title || '(Untitled)';
+      const meta = el('div','meta');
+      const chip = el('span','chip'); chip.textContent = row.Source || 'Unknown';
+      const date = el('span'); date.textContent = row.DateText || (row.DateObj? row.DateObj.toLocaleDateString(): '');
+      meta.append(chip,'•',date);
+      const sum = el('p','summary'); sum.textContent = row.Summary || '';
+      p.append(h, meta, sum);
+
+      // AI summary block (shown only when toggle is on)
+      if(STATE.showAI){
+        const ai = el('div','aisum');
+        ai.innerHTML = `<b>AI summary:</b> ${aiSummarize(row.Title, row.Summary)}`;
+        p.appendChild(ai);
+      }
+
+      c.appendChild(p);
+
+      const actions = el('div','actions');
+      const a1 = el('a','link primary'); a1.href = row.Link || '#'; a1.target='_blank'; a1.rel='noopener'; a1.textContent='Open Article';
+      const a2 = el('a','link'); a2.href = `https://www.google.com/search?q=${encodeURIComponent((row.Title||'')+' '+(row.Source||''))}`; a2.target='_blank'; a2.rel='noopener'; a2.textContent='Search';
+      actions.append(a1,a2);
+      c.appendChild(actions);
+
+      return c;
+    }
+
+    // events
+    byId('source').addEventListener('change', (e)=>{ STATE.source = e.target.value; applyFilters(); });
+    byId('aiToggle').addEventListener('change', (e)=>{ STATE.showAI = !!e.target.checked; render(); });
+    byId('prev').addEventListener('click', ()=>{ STATE.page = Math.max(1, STATE.page-1); render(); });
+    byId('next').addEventListener('click', ()=>{
+      const totalPages = Math.max(1, Math.ceil(STATE.filtered.length/STATE.pageSize));
+      STATE.page = Math.min(totalPages, STATE.page+1); render();
+    });
+
+    loadCSV();
+  </script>
+</body>
+</html>
