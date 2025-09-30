@@ -27,39 +27,12 @@
 
     .controls { display: flex; justify-content: center; flex-wrap: wrap; gap: 16px; margin-top: 20px }
 
-    .control select, .control input {
-      padding: 11px 12px;
-      border-radius: 10px;
-      border: 1px solid #d7dee9;
-      background: #fff;
-      outline: none;
-      min-width: 220px;
-    }
+    .control select, .control input { padding: 11px 12px; border-radius: 10px; border: 1px solid #d7dee9; background: #fff; outline: none; min-width: 220px; }
+    .control select:focus, .control input:focus { border-color: var(--brand); box-shadow: 0 0 0 4px rgba(0,169,157,.35); }
 
-    .control select:focus, .control input:focus {
-      border-color: var(--brand);
-      box-shadow: 0 0 0 4px rgba(0,169,157,.35);
-    }
+    .grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 16px; margin-top: 24px; }
 
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(12, 1fr);
-      gap: 16px;
-      margin-top: 24px;
-    }
-
-    .card {
-      grid-column: span 4;
-      background: var(--card);
-      border-radius: 16px;
-      box-shadow: 0 8px 24px rgba(15,23,42,.06);
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
-      transition: transform .1s ease, box-shadow .1s ease;
-      animation: fadeIn .3s ease;
-    }
-
+    .card { grid-column: span 4; background: var(--card); border-radius: 16px; box-shadow: 0 8px 24px rgba(15,23,42,.06); overflow: hidden; display: flex; flex-direction: column; transition: transform .1s ease, box-shadow .1s ease; animation: fadeIn .3s ease; }
     .card:hover { transform: translateY(-3px); box-shadow: 0 10px 28px rgba(15,23,42,.1) }
     .thumb { width: 100%; aspect-ratio: 16/9; background: #eef2f7; object-fit: cover }
     .pad { padding: 14px 16px }
@@ -70,67 +43,19 @@
     .meta .chip { background: #e2f7f4; color: #038a81; padding: 4px 8px; border-radius: 999px }
 
     .actions { display: flex; gap: 10px; margin-top: auto; padding: 0 16px 14px }
-    .link {
-      flex: 1;
-      text-align: center;
-      text-decoration: none;
-      padding: 10px 12px;
-      border-radius: 10px;
-      border: 1px solid #d7dee9;
-      background: #fff;
-    }
-
+    .link { flex: 1; text-align: center; text-decoration: none; padding: 10px 12px; border-radius: 10px; border: 1px solid #d7dee9; background: #fff; }
     .link.primary { background: var(--brand); color: #fff; border-color: transparent }
 
-    .empty, #status {
-      background: #fff;
-      border: 1px dashed #cbd5e1;
-      padding: 20px;
-      border-radius: 12px;
-      text-align: center;
-      color: #64748b;
-      margin-top: 20px;
-    }
+    .empty, #status { background: #fff; border: 1px dashed #cbd5e1; padding: 20px; border-radius: 12px; text-align: center; color: #64748b; margin-top: 20px; }
 
-    .pager, .article-count {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      margin: 24px 0;
-      gap: 12px;
-    }
+    .pager, .article-count { display: flex; justify-content: center; align-items: center; margin: 24px 0; gap: 12px; }
 
-    .btn {
-      padding: 10px 12px;
-      border-radius: 10px;
-      border: 1px solid #d7dee9;
-      background: #fff;
-      cursor: pointer;
-    }
+    .btn { padding: 10px 12px; border-radius: 10px; border: 1px solid #d7dee9; background: #fff; cursor: pointer; }
+    .btn:disabled { opacity: .5; cursor: not-allowed; }
 
-    .btn:disabled {
-      opacity: .5;
-      cursor: not-allowed;
-    }
+    #backToTop { position: fixed; bottom: 24px; right: 24px; background: var(--brand); color: white; border: none; padding: 12px 16px; border-radius: 8px; cursor: pointer; display: none; box-shadow: 0 4px 10px rgba(0,0,0,0.15); }
 
-    #backToTop {
-      position: fixed;
-      bottom: 24px;
-      right: 24px;
-      background: var(--brand);
-      color: white;
-      border: none;
-      padding: 12px 16px;
-      border-radius: 8px;
-      cursor: pointer;
-      display: none;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.15);
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
     @media (max-width: 1024px) { .card { grid-column: span 6 } }
     @media (max-width: 640px)  { .card { grid-column: span 12 } }
@@ -181,6 +106,17 @@
 
   const LOGO_BASE = "https://raw.githubusercontent.com/jumpbcc158/Logos/main/";
   const LOGO_DEFAULT = LOGO_BASE + "0 Logo Dextra RGB Web Colors.png";
+
+  // Strong normalize: lower-case, strip accents/punctuation, collapse whitespace
+  const normalize = s => (s || "")
+    .toLowerCase()
+    .normalize("NFD").replace(/[\u0300-\u036f]/g, "") // accents → plain
+    .replace(/[\u2018\u2019]/g, "'")                  // curly quotes → '
+    .replace(/[\u2013\u2014]/g, "-")                  // en/em dash → -
+    .replace(/[^a-z0-9]+/g, " ")                        // non-alnum → space
+    .replace(/\s+/g, " ").trim();
+
+  // Canonical map: keys MUST be normalized
   const LOGO_MAP = {
     "dywidag": "DYWIDAG_16x9.png",
     "anker schroeder": "Anker_Schroeder_16x9.png",
@@ -191,21 +127,65 @@
     "nvent lenton": "nVent_Lenton_16x9.png",
     "lenton": "nVent_Lenton_16x9.png",
     "macalloy": "Macalloy_16x9.png",
-    "moment (leviat)": "Leviat_Moment_16x9.png",
-    "FiReP Minova": "FiRep_16x9.png",
-    "Williams Form" :  "Williams_Form_16x9.png"
+    "moment": "Leviat_Moment_16x9.png",
+    // ✅ fixed ones
+    "firep minova": "FiReP_16x9.png",
+    "williams form": "Williams_Form_16x9.png"
   };
 
-  const normalize = s => (s || "").toLowerCase().replace(/\s+/g, " ").trim();
+  // Aliases map: variant → canonical key present in LOGO_MAP
+  const LOGO_ALIASES = {
+    // FiReP / Minova variants
+    "firep": "firep minova",
+    "fi rep": "firep minova",
+    "fi rep minova": "firep minova",
+    "minova": "firep minova",
+    "minova firep": "firep minova",
+
+    // Williams variants
+    "williams": "williams form",
+    "williams form engineering": "williams form",
+    "williams form engineering corp": "williams form",
+    "william form": "williams form",
+
+    // Leviat family variants
+    "moment (leviat)": "moment",
+    "leviat moment": "moment",
+    "ancon (leviat)": "ancon"
+  };
+
+  function logoFileFor(canonical) {
+    if (LOGO_MAP[canonical]) return LOGO_MAP[canonical];
+    // Fuzzy: pick the longest key that is contained in the canonical string
+    let bestKey = null;
+    for (const k in LOGO_MAP) {
+      if (canonical.includes(k)) {
+        if (!bestKey || k.length > bestKey.length) bestKey = k;
+      }
+    }
+    return bestKey ? LOGO_MAP[bestKey] : null;
+  }
+
+  function logoSrcFor(name) {
+    const key = normalize(name);
+    const canonical = LOGO_ALIASES[key] || key;
+    const file = logoFileFor(canonical);
+    return file ? (LOGO_BASE + file) : null;
+  }
 
   function setBrand(name) {
     const img = byId("brandImg");
-    const key = normalize(name);
-    const src = key ? (LOGO_MAP[key] ? LOGO_BASE + LOGO_MAP[key] : null) : LOGO_DEFAULT;
+    const src = name ? logoSrcFor(name) : LOGO_DEFAULT;
+
     if (src) {
-      img.src = src; img.alt = name || "Dextra"; img.hidden = false;
+      img.hidden = false;
+      img.alt = name || "Dextra";
+      img.src = src;
+      img.onerror = () => { img.onerror = null; img.src = LOGO_DEFAULT; };
     } else {
-      img.removeAttribute("src"); img.alt = "Brand"; img.hidden = true;
+      img.removeAttribute("src");
+      img.alt = "Brand";
+      img.hidden = true;
     }
   }
 
@@ -216,7 +196,8 @@
     const m = String(v).match(/(\d{1,2})[\/.\-](\d{1,2})[\/.\-](\d{2,4})/);
     if (m) {
       const [_, d1, m1, y1] = m;
-      return new Date(Number(y1.length === 2 ? ('20' + y1) : y1), Number(m1) - 1, Number(d1));
+      const yr = y1.length === 2 ? (Number(y1) + 2000) : Number(y1);
+      return new Date(yr, Number(m1) - 1, Number(d1));
     }
     return null;
   }
@@ -253,10 +234,8 @@
 
   function hydrateSources(rows) {
     const sel = byId('source');
-    const uniq = [...new Set(rows.map(r => r.Source).filter(Boolean))].sort();
-    uniq.forEach(s => {
-      const o = el('option'); o.value = s; o.textContent = s; sel.appendChild(o);
-    });
+    const uniq = [...new Set(rows.map(r => r.Source).filter(Boolean))].sort((a,b)=>a.localeCompare(b));
+    uniq.forEach(s => { const o = el('option'); o.value = s; o.textContent = s; sel.appendChild(o); });
   }
 
   function applyFilters() {
@@ -318,6 +297,10 @@
     img.loading = 'lazy';
     img.alt = row.Title || 'thumbnail';
     img.src = row.Image || 'data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22400%22 height=%22225%22><rect width=%22400%22 height=%22225%22 fill=%22%23eef2f7%22/><text x=%2250%25%22 y=%2250%25%22 dominant-baseline=%22middle%22 text-anchor=%22middle%22 fill=%22%2394a3b8%22 font-size=%2220%22 font-family=%22Segoe UI%22>No image</text></svg>';
+    img.onerror = () => {
+      img.onerror = null;
+      img.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="400" height="225"><rect width="400" height="225" fill="%23eef2f7"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="%2394a3b8" font-size="20" font-family="Segoe UI">No image</text></svg>';
+    };
     c.appendChild(img);
 
     const p = el('div', 'pad');
@@ -343,15 +326,9 @@
   byId('sort').addEventListener('change', e => { STATE.sort = e.target.value; applyFilters(); });
   byId('search').addEventListener('input', e => { STATE.search = e.target.value; applyFilters(); });
   byId('prev').addEventListener('click', () => { STATE.page = Math.max(1, STATE.page - 1); render(); });
-  byId('next').addEventListener('click', () => {
-    const totalPages = Math.max(1, Math.ceil(STATE.filtered.length / STATE.pageSize));
-    STATE.page = Math.min(totalPages, STATE.page + 1); render();
-  });
+  byId('next').addEventListener('click', () => { const totalPages = Math.max(1, Math.ceil(STATE.filtered.length / STATE.pageSize)); STATE.page = Math.min(totalPages, STATE.page + 1); render(); });
 
-  window.addEventListener('scroll', () => {
-    const btn = byId('backToTop');
-    btn.style.display = window.scrollY > 300 ? 'block' : 'none';
-  });
+  window.addEventListener('scroll', () => { const btn = byId('backToTop'); btn.style.display = window.scrollY > 300 ? 'block' : 'none'; });
 
   setBrand('');
   loadCSV();
