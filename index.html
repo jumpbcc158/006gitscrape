@@ -598,7 +598,7 @@
     "williams form engineering": "williams form",
     "williams form engineering corp": "williams form",
     "william form": "williams form",
-    "Moment (Leviat)": "moment",
+    "moment (leviat)": "moment",
     "leviat moment": "moment",
     "ancon (leviat)": "ancon",
     "mstbar": "mst bar",
@@ -694,6 +694,9 @@
         const params = new URLSearchParams(location.search);
         const preCompany = params.get('company');
         const preLine = params.get('line');
+        const preSearch = params.get('search');
+        const preSort = params.get('sort');
+        
         if (preCompany && [...byId('source').options].some(o => o.value === preCompany)) {
           byId('source').value = preCompany;
           STATE.source = preCompany;
@@ -701,6 +704,14 @@
         if (preLine && ["CRP","Bars","Geotec"].includes(preLine)) {
           byId('line').value = preLine;
           STATE.line = preLine;
+        }
+        if (preSearch) {
+          byId('search').value = preSearch;
+          STATE.search = preSearch;
+        }
+        if (preSort && ['date_desc', 'date_asc', 'title_asc', 'title_desc'].includes(preSort)) {
+          byId('sort').value = preSort;
+          STATE.sort = preSort;
         }
 
         setHeaderLogo();
