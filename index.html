@@ -41,6 +41,7 @@
     .summary { color: #475569; font-size: 14px; line-height: 1.45; display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden }
     .meta { display: flex; gap: 8px; align-items: center; margin: 10px 0 12px; font-size: 12px; color: #64748b }
     .meta .chip { background: #e2f7f4; color: #038a81; padding: 4px 8px; border-radius: 999px }
+    .meta .chip.line { background: #eef2ff; color: #334155 }
 
     .actions { display: flex; gap: 10px; margin-top: auto; padding: 0 16px 14px }
     .link { flex: 1; text-align: center; text-decoration: none; padding: 10px 12px; border-radius: 10px; border: 1px solid #d7dee9; background: #fff; }
@@ -71,6 +72,7 @@
     </div>
     <div class="controls">
       <div class="control"><select id="source"><option value="">All Companies</option></select></div>
+      <div class="control"><select id="line"><option value="">All Product Lines</option><option value="CRP">CRP</option><option value="Bars">Bars</option><option value="Geotec">Geotec</option></select></div>
       <div class="control"><input type="text" id="search" placeholder="Search keyword..." /></div>
       <div class="control">
         <select id="sort">
@@ -102,10 +104,17 @@
   const byId = id => document.getElementById(id);
   const el = (tag, cls) => { const e=document.createElement(tag); if(cls) e.className=cls; return e; }
 
-  const STATE = { raw:[], filtered:[], page:1, pageSize:12, sort:'date_desc', source:'', search:'' };
+  const STATE = { raw:[], filtered:[], page:1, pageSize:12, sort:'date_desc', source:'', search:'', line:'' };
 
   const LOGO_BASE = "https://raw.githubusercontent.com/jumpbcc158/Logos/main/";
   const LOGO_DEFAULT = LOGO_BASE + "0 Logo Dextra RGB Web Colors.png";
+
+  // Product line header logos provided by you
+  const LINE_LOGOS = {
+    "crp": LOGO_BASE + "CRP_16x9_white.png",
+    "bars": LOGO_BASE + "Bars_16x9_white.png",
+    "geotec": LOGO_BASE + "Geo_16x9_white.png"
+  };
 
   // Strong normalize: lower-case, strip accents/punctuation, collapse whitespace
   const normalize = s => (s || "")
@@ -128,9 +137,14 @@
     "lenton": "nVent_Lenton_16x9.png",
     "macalloy": "Macalloy_16x9.png",
     "moment": "Leviat_Moment_16x9.png",
-    // ✅ fixed ones
-    "firep minova": "FiRep_16x9.png",
-    "williams form": "Williams_Form_16x9.png"
+    // fixed ones
+    "firep minova": "FiReP_16x9.png",
+    "williams form": "Williams_Form_16x9.png",
+    // others that appear in your image
+    "splice sleeve": "Splice_Sleeve_16x9.png",
+    "boowon bms": "Boowon_BMS_16x9.png",
+    "mateenbar": "Mateenbar_16x9.png",
+    "mst bar": "MST_Bar_16x9.png"
   };
 
   // Aliases map: variant → canonical key present in LOGO_MAP
@@ -151,7 +165,35 @@
     // Leviat family variants
     "moment (leviat)": "moment",
     "leviat moment": "moment",
-    "ancon (leviat)": "ancon"
+    "ancon (leviat)": "ancon",
+
+    // MST formatting variants
+    "mstbar": "mst bar",
+    "mst-bar": "mst bar"
+  };
+
+  // Product line memberships (multiple allowed). Keys use canonical competitor names.
+  const LINE_MAP = {
+    // CRP
+    "moment": ["CRP"],
+    "ancon": ["CRP"],
+    "leviat": ["CRP"],
+    "nvent lenton": ["CRP"],
+    "splice sleeve": ["CRP"],
+    "boowon bms": ["CRP"],
+
+    // Bars (Engineered Bar System)
+    "dywidag": ["Bars", "Geotec"],
+    "anker schroeder": ["Bars"],
+    "macalloy": ["Bars"],
+    "williams form": ["Bars"],
+    "sah": ["Bars", "Geotec"],
+    "stahlwerk annahutte": ["Bars", "Geotec"],
+
+    // Geotec (Ground Engineering)
+    "mateenbar": ["Geotec"],
+    "mst bar": ["Geotec"],
+    "firep minova": ["Geotec"]
   };
 
   function logoFileFor(canonical) {
@@ -159,34 +201,39 @@
     // Fuzzy: pick the longest key that is contained in the canonical string
     let bestKey = null;
     for (const k in LOGO_MAP) {
-      if (canonical.includes(k)) {
-        if (!bestKey || k.length > bestKey.length) bestKey = k;
-      }
+      if (canonical.includes(k)) { if (!bestKey || k.length > bestKey.length) bestKey = k; }
     }
     return bestKey ? LOGO_MAP[bestKey] : null;
   }
 
-  function logoSrcFor(name) {
+  function canonicalFor(name) {
     const key = normalize(name);
-    const canonical = LOGO_ALIASES[key] || key;
+    return LOGO_ALIASES[key] || key;
+  }
+
+  function logoSrcFor(name) {
+    const canonical = canonicalFor(name);
     const file = logoFileFor(canonical);
     return file ? (LOGO_BASE + file) : null;
   }
 
-  function setBrand(name) {
-    const img = byId("brandImg");
-    const src = name ? logoSrcFor(name) : LOGO_DEFAULT;
+  function linesFor(name) {
+    const canonical = canonicalFor(name);
+    return LINE_MAP[canonical] || [];
+  }
 
-    if (src) {
-      img.hidden = false;
-      img.alt = name || "Dextra";
-      img.src = src;
-      img.onerror = () => { img.onerror = null; img.src = LOGO_DEFAULT; };
-    } else {
-      img.removeAttribute("src");
-      img.alt = "Brand";
-      img.hidden = true;
-    }
+  function setHeaderLogo() {
+    const img = byId("brandImg");
+    // Priority: specific company > product line > default
+    const company = STATE.source && logoSrcFor(STATE.source);
+    const lineKey = (STATE.line || '').toLowerCase();
+    const lineSrc = LINE_LOGOS[lineKey];
+    const src = company || lineSrc || LOGO_DEFAULT;
+
+    img.hidden = false;
+    img.alt = company ? STATE.source : (STATE.line || 'Dextra');
+    img.src = src;
+    img.onerror = () => { img.onerror = null; img.src = LOGO_DEFAULT; };
   }
 
   function parseDate(v) {
@@ -213,19 +260,25 @@
           Link: r.Link?.trim() || '',
           Image: r.Image?.trim() || '',
           Summary: r.Summary?.trim() || '',
-          Source: r.Source?.trim() || ''
+          Source: r.Source?.trim() || '',
+          Lines: linesFor(r.Source?.trim() || '')
         }));
         STATE.raw = rows;
         hydrateSources(rows);
 
         const params = new URLSearchParams(location.search);
-        const preselect = params.get('company');
-        if (preselect && [...byId('source').options].some(o => o.value === preselect)) {
-          byId('source').value = preselect;
-          STATE.source = preselect;
+        const preCompany = params.get('company');
+        const preLine = params.get('line');
+        if (preCompany && [...byId('source').options].some(o => o.value === preCompany)) {
+          byId('source').value = preCompany;
+          STATE.source = preCompany;
+        }
+        if (preLine && ["CRP","Bars","Geotec"].includes(preLine)) {
+          byId('line').value = preLine;
+          STATE.line = preLine;
         }
 
-        setBrand(STATE.source);
+        setHeaderLogo();
         applyFilters();
       },
       error: () => { byId('status').textContent = 'Could not load export_combined.csv.'; }
@@ -239,9 +292,10 @@
   }
 
   function applyFilters() {
-    const { source, sort, search } = STATE;
+    const { source, sort, search, line } = STATE;
     let rows = STATE.raw.filter(r =>
       (!source || r.Source === source) &&
+      (!line || (r.Lines && r.Lines.includes(line))) &&
       (!search || r.Title.toLowerCase().includes(search.toLowerCase()) || r.Summary.toLowerCase().includes(search.toLowerCase()))
     );
 
@@ -296,7 +350,7 @@
     const img = el('img', 'thumb');
     img.loading = 'lazy';
     img.alt = row.Title || 'thumbnail';
-    img.src = row.Image || 'data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22400%22 height=%22225%22><rect width=%22400%22 height=%22225%22 fill=%22%23eef2f7%22/><text x=%2250%25%22 y=%2250%25%22 dominant-baseline=%22middle%22 text-anchor=%22middle%22 fill=%22%2394a3b8%22 font-size=%2220%22 font-family=%22Segoe UI%22>No image</text></svg>';
+    img.src = row.Image || 'data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22400%22 height=%22225%22><rect width=%22400%22 height=%22225%22 fill=%22%23eef2f7%22/><text x=%2250%25%22 y=%2250%25%22 dominant-baseline=%22middle%22 text-anchor=%22middle%22 fill=%2394a3b8%22 font-size=%2220%22 font-family=%22Segoe UI%22>No image</text></svg>';
     img.onerror = () => {
       img.onerror = null;
       img.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="400" height="225"><rect width="400" height="225" fill="%23eef2f7"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="%2394a3b8" font-size="20" font-family="Segoe UI">No image</text></svg>';
@@ -307,8 +361,16 @@
     const h = el('h2', 'title'); h.textContent = row.Title || '(Untitled)';
     const meta = el('div', 'meta');
     const chip = el('span', 'chip'); chip.textContent = row.Source || 'Unknown';
+    meta.append(chip);
+
+    // Add product line chips if present (supports multiple)
+    if (row.Lines && row.Lines.length) {
+      row.Lines.forEach(L => { const ch = el('span', 'chip line'); ch.textContent = L; meta.append('•', ch); });
+    }
+
     const date = el('span'); date.textContent = row.DateText || (row.DateObj ? row.DateObj.toLocaleDateString() : '');
-    meta.append(chip, '•', date);
+    meta.append('•', date);
+
     const sum = el('p', 'summary'); sum.textContent = row.Summary || '';
     p.append(h, meta, sum);
     c.appendChild(p);
@@ -322,7 +384,8 @@
     return c;
   }
 
-  byId('source').addEventListener('change', e => { STATE.source = e.target.value; setBrand(STATE.source); applyFilters(); });
+  byId('source').addEventListener('change', e => { STATE.source = e.target.value; setHeaderLogo(); applyFilters(); });
+  byId('line').addEventListener('change', e => { STATE.line = e.target.value; setHeaderLogo(); applyFilters(); });
   byId('sort').addEventListener('change', e => { STATE.sort = e.target.value; applyFilters(); });
   byId('search').addEventListener('input', e => { STATE.search = e.target.value; applyFilters(); });
   byId('prev').addEventListener('click', () => { STATE.page = Math.max(1, STATE.page - 1); render(); });
@@ -330,7 +393,7 @@
 
   window.addEventListener('scroll', () => { const btn = byId('backToTop'); btn.style.display = window.scrollY > 300 ? 'block' : 'none'; });
 
-  setBrand('');
+  setHeaderLogo();
   loadCSV();
 </script>
 </body>
