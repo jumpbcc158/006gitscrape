@@ -678,17 +678,17 @@
       download: true, header: true, skipEmptyLines: true,
       complete: (res) => {
            const rows = res.data.map(r => ({
-      Title: r.Title?.trim() || '',
-      DateText: r.DateText?.trim() || '',
-      DateISO: r.DateISO?.trim() || '',                     // ← NEW
-      DateObj: parseDate(r.DateISO)                         // ← prefer normalized ISO
-               || parseDate(r.Date || r.DateText) || null,  //    fallback to old fields
-      Link: r.Link?.trim() || '',
-      Image: r.Image?.trim() || '',
-      Summary: r.Summary?.trim() || '',
-      Source: r.Source?.trim() || '',
-      Lines: linesFor(r.Source?.trim() || '')
-      }));
+            Title: r.Title?.trim() || '',
+            DateText: r.DateText?.trim() || '',
+            DateISO: r.DateISO?.trim() || '',                 // ← NEW
+            DateObj: parseDate(r.DateISO)                     // prefer normalized ISO (for sorting fallback)
+                     || parseDate(r.Date || r.DateText) || null,
+            Link: r.Link?.trim() || '',
+            Image: r.Image?.trim() || '',
+            Summary: r.Summary?.trim() || '',
+            Source: r.Source?.trim() || '',
+            Lines: linesFor(r.Source?.trim() || '')
+          }));
         STATE.raw = rows;
         hydrateSources(rows);
 
@@ -818,8 +818,9 @@
       row.Lines.forEach(L => { const ch = el('span', 'chip line'); ch.textContent = L; meta.append('•', ch); });
     }
 
-    const date = el('span'); date.textContent = row.DateText || (row.DateObj ? row.DateObj.toLocaleDateString() : '');
-    meta.append('•', date);
+    const date = el('span');
+      date.textContent = row.DateISO || '';   // ← show ISO only
+      meta.append('•', date);
 
     const sum = el('p', 'summary'); sum.textContent = row.Summary || '';
     p.append(h, meta, sum);
