@@ -1,13 +1,8 @@
 name: Run scrapev2.py
 
 on:
-  workflow_dispatch:            # manual "Run workflow" button
-    inputs:
-      args:
-        description: "Arguments for scrapev2.py (optional)"
-        required: false
-        default: ""
-  push:                         # also run if these files change
+  workflow_dispatch: {}
+  push:
     paths:
       - ".github/workflows/run-python.yml"
       - "requirements.txt"
@@ -26,15 +21,27 @@ jobs:
           python-version: "3.11"
           cache: "pip"
 
+      - name: Install Google Chrome
+        id: setup-chrome
+        uses: browser-actions/setup-chrome@v1
+        with:
+          chrome-version: stable
+
+      - name: Show Chrome version
+        run: |
+          "${{ steps.setup-chrome.outputs.chrome-path }}" --version
+
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
+      # Run under a virtual display in case your script didn't set headless
       - name: Run script
         run: |
-          python scrapev2.py ${{ github.event.inputs.args }}
+          xvfb-run -a python scrapev2.py
 
+      # Optional: upload CSVs your script produces
       - name: Upload CSV output (optional)
         if: always()
         uses: actions/upload-artifact@v4
