@@ -311,7 +311,7 @@
     .replace(/[^a-z0-9]+/g, " ")
     .replace(/\s+/g, " ").trim();
 
-  /* --- Canonical logos (fixed typo: firep minova) --- */
+  /* --- Canonical logos (fixed spelling: firep minova) --- */
   const LOGO_MAP = {
     "dywidag": "DYWIDAG_16x9.png",
     "anker schroeder": "Anker_Schroeder_16x9.png",
@@ -351,7 +351,7 @@
     "stahlwerk annahuette": "stahlwerk annahutte"
   };
 
-  /* --- Which product lines each canonical source belongs to --- */
+  /* --- Product lines per canonical source --- */
   const LINE_MAP = {
     "moment": ["CRP"],
     "ancon": ["CRP"],
@@ -420,7 +420,7 @@
 
   function setHeaderLogo() {
     const img = byId("brandImg");
-    const companyLogo = STATE.source && logoSrcFor(STATE.source); // STATE.source will hold canonical
+    const companyLogo = STATE.source && logoSrcFor(STATE.source); // STATE.source is canonical
     const lineKey = (STATE.line || '').toLowerCase();
     const lineSrc = LINE_LOGOS[lineKey];
     const src = companyLogo || lineSrc || LOGO_DEFAULT;
@@ -451,17 +451,27 @@
         const rows = res.data.map(r => {
           const srcRaw   = r.Source?.trim() || '';
           const srcCanon = canonicalFor(srcRaw);
+
+          // Normalize ISO date (prefer CSV DateISO; fallback to parsed Date/DateText)
+          const isoCSV = (r.DateISO || '').trim().slice(0, 10); // YYYY-MM-DD
+          const fallbackObj = parseDate(r.Date || r.DateText);
+          const isoFallback = fallbackObj ? fallbackObj.toISOString().slice(0,10) : '';
+          const dateISO = isoCSV || isoFallback;
+
+          // Robust numeric sort key; blank → 0 (goes to bottom on DESC)
+          const dateKeyNum = dateISO ? Number(dateISO.replace(/-/g, '')) : 0;
+
           return {
             Title: r.Title?.trim() || '',
             DateText: r.DateText?.trim() || '',
             DateISO: dateISO,
-            DateObj: fallbackObj || null,          // kept for any future use
-            DateKeyNum: dateKeyNum,  
+            DateObj: fallbackObj || null,
+            DateKeyNum: dateKeyNum,
             Link: r.Link?.trim() || '',
             Image: r.Image?.trim() || '',
             Summary: r.Summary?.trim() || '',
-            Source: srcRaw,                  // original text from CSV
-            SourceCanon: srcCanon,           // normalized for logic
+            Source: srcRaw,                      // original
+            SourceCanon: srcCanon,               // normalized key
             SourceDisplay: displayFor(srcCanon), // pretty label
             Lines: linesFor(srcRaw)
           };
@@ -510,8 +520,8 @@
       .sort((a,b) => displayFor(a).localeCompare(displayFor(b)));
     uniqCanon.forEach(canon => {
       const o = el('option');
-      o.value = canon;                // value used for filtering
-      o.textContent = displayFor(canon); // label shown to users
+      o.value = canon;                   // filter by canonical
+      o.textContent = displayFor(canon); // label users see
       sel.appendChild(o);
     });
   }
@@ -528,12 +538,10 @@
       switch (sort) {
         case 'title_asc':  return a.Title.localeCompare(b.Title);
         case 'title_desc': return b.Title.localeCompare(a.Title);
-    
         case 'date_asc':
           return (a.DateKeyNum - b.DateKeyNum) ||
-                 a.Title.localeCompare(b.Title);   // stable tiebreaker
-    
-        default: // 'date_desc'
+                 a.Title.localeCompare(b.Title);
+        default: // date_desc
           return (b.DateKeyNum - a.DateKeyNum) ||
                  a.Title.localeCompare(b.Title);
       }
@@ -581,7 +589,7 @@
     const img = el('img', 'thumb');
     img.loading = 'lazy';
     img.alt = row.Title || 'thumbnail';
-    img.src = row.Image || 'data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22400%22 height=%22225%22><rect width=%22400%22 height=%22225%22 fill=%22%23f1f5f9%22/><text x=%2250%25%22 y=%2250%25%22 dominant-baseline=%22middle%22 text-anchor=%22middle%22 fill=%2294a3b8%22 font-size=%2218%22 font-family=%22system-ui%22 font-weight=%22600%22>No image available</text></svg>';
+    img.src = row.Image || 'data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22400%22 height=%22225%22><rect width=%22400%22 height=%22225%22 fill=%22%23f1f5f9%22/><text x=%2250%25%22 y=%2250%25%22 dominant-baseline=%22middle%22 text-anchor=%22middle%22 fill=%2394a3b8%22 font-size=%2218%22 font-family=%22system-ui%22 font-weight=%22600%22>No image available</text></svg>';
     img.onerror = () => {
       img.onerror = null;
       img.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="400" height="225"><rect width="400" height="225" fill="%23f1f5f9"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="%2394a3b8" font-size="18" font-family="system-ui" font-weight="600">No image available</text></svg>';
@@ -593,7 +601,7 @@
     const meta = el('div', 'meta');
 
     const chip = el('span', 'chip'); 
-    chip.textContent = row.SourceDisplay || 'Unknown';   // show pretty name
+    chip.textContent = row.SourceDisplay || 'Unknown';
     meta.append(chip);
 
     if (row.Lines && row.Lines.length) {
@@ -601,7 +609,7 @@
     }
 
     const date = el('span');
-    date.textContent = row.DateISO || '';   // show ISO date only
+    date.textContent = row.DateISO || '';
     meta.append('•', date);
 
     const sum = el('p', 'summary'); sum.textContent = row.Summary || '';
