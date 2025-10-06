@@ -677,16 +677,18 @@
     Papa.parse('export_combined.csv', {
       download: true, header: true, skipEmptyLines: true,
       complete: (res) => {
-        const rows = res.data.map(r => ({
-          Title: r.Title?.trim() || '',
-          DateText: r.DateText?.trim() || '',
-          DateObj: parseDate(r.Date || r.DateText) || null,
-          Link: r.Link?.trim() || '',
-          Image: r.Image?.trim() || '',
-          Summary: r.Summary?.trim() || '',
-          Source: r.Source?.trim() || '',
-          Lines: linesFor(r.Source?.trim() || '')
-        }));
+           const rows = res.data.map(r => ({
+      Title: r.Title?.trim() || '',
+      DateText: r.DateText?.trim() || '',
+      DateISO: r.DateISO?.trim() || '',                     // ← NEW
+      DateObj: parseDate(r.DateISO)                         // ← prefer normalized ISO
+               || parseDate(r.Date || r.DateText) || null,  //    fallback to old fields
+      Link: r.Link?.trim() || '',
+      Image: r.Image?.trim() || '',
+      Summary: r.Summary?.trim() || '',
+      Source: r.Source?.trim() || '',
+      Lines: linesFor(r.Source?.trim() || '')
+      }));
         STATE.raw = rows;
         hydrateSources(rows);
 
@@ -735,13 +737,27 @@
     );
 
     rows.sort((a, b) => {
-      switch (sort) {
-        case 'title_asc': return a.Title.localeCompare(b.Title);
-        case 'title_desc': return b.Title.localeCompare(a.Title);
-        case 'date_asc': return (a.DateObj?.getTime() || 0) - (b.DateObj?.getTime() || 0);
-        default: return (b.DateObj?.getTime() || 0) - (a.DateObj?.getTime() || 0);
-      }
-    });
+  switch (sort) {
+    case 'title_asc':  return a.Title.localeCompare(b.Title);
+    case 'title_desc': return b.Title.localeCompare(a.Title);
+
+    case 'date_asc': {
+      const aISO = a.DateISO || '';
+      const bISO = b.DateISO || '';
+      // ISO sorts lexicographically; fallback to DateObj if needed
+      return aISO.localeCompare(bISO) ||
+             (a.DateObj?.getTime() || 0) - (b.DateObj?.getTime() || 0);
+    }
+
+    // default = 'date_desc'
+    default: {
+      const aISO = a.DateISO || '';
+      const bISO = b.DateISO || '';
+      return bISO.localeCompare(aISO) ||
+             (b.DateObj?.getTime() || 0) - (a.DateObj?.getTime() || 0);
+    }
+  }
+});
 
     STATE.filtered = rows;
     STATE.page = 1;
