@@ -7,6 +7,13 @@ on:
       - ".github/workflows/run-python.yml"
       - "requirements.txt"
       - "scrapev2.py"
+  # Daily at 09:00 Asia/Singapore (UTC+8) -> 01:00 UTC
+  schedule:
+    - cron: "0 1 * * *"
+
+concurrency:
+  group: scrapev2
+  cancel-in-progress: true
 
 permissions:
   contents: write   # allow pushing back to the repo
@@ -26,7 +33,8 @@ jobs:
 
       - uses: browser-actions/setup-chrome@v1
         id: chrome
-      - run: ${{ steps.chrome.outputs.chrome-path }} --version
+      - name: Show Chrome version
+        run: ${{ steps.chrome.outputs.chrome-path }} --version
 
       - name: Install dependencies
         run: |
@@ -38,6 +46,7 @@ jobs:
           xvfb-run -a python scrapev2.py
 
       - name: Commit CSV to repo root
+        if: ${{ github.event_name != 'pull_request' }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
@@ -45,18 +54,21 @@ jobs:
           if [ -f export_combined.csv ]; then
             git config user.name  "github-actions[bot]"
             git config user.email "github-actions[bot]@users.noreply.github.com"
+            git pull --rebase
             git add export_combined.csv
-            git commit -m "Update export_combined.csv [skip ci]" || echo "No changes to commit"
-            git push || echo "Push blocked (protected branch?)"
+            if git diff --staged --quiet; then
+              echo "No changes to commit"
+            else
+              git commit -m "Update export_combined.csv [skip ci]"
+              git push
+            fi
           else
             echo "export_combined.csv not found"; exit 1
           fi
 
-      # Optional: also keep a downloadable copy in the run
-      - name: Upload artifact
+      - name: Upload artifact (optional)
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: output
-          path: |
-            export_combined.csv
+          path: export_combined.csv
