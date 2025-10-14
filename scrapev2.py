@@ -501,37 +501,84 @@ def scrape_dywidag_selenium():
     driver.quit()
     return articles_data
 
+
+
+from datetime import datetime
+
 def scrape_annahutte():
-    url = "https://www.annahuette.com/news/"  # Use the German version for actual article links
+    base_url = "https://www.annahuette.com"
+    listing_url = base_url + "/news/"
     translate_prefix = "https://translate.google.com/translate?hl=en&sl=de&u="
-    response = requests.get(url, headers=HEADERS, verify=False)
+    
+    response = requests.get(listing_url, headers=HEADERS, verify=False)
     response.raise_for_status()
     soup = BeautifulSoup(response.content, "html.parser")
 
     articles = []
-    # The clickable titles are links—find them instead of generic divs
-    news_items = soup.find_all("h2")  # Often the title headings; adjust if needed
+    news_items = soup.find_all("h2")
 
     for heading in news_items:
         a_tag = heading.find("a", href=True)
         if not a_tag:
             continue
+
         title = a_tag.get_text(strip=True)
         link = a_tag["href"]
-        # Normalize relative URLs
         if link.startswith("/"):
-            link = "https://www.annahuette.com" + link
+            link = base_url + link
 
         translated_link = translate_prefix + link
 
-        # You can still extract other details (date, summary, image) relative to this heading...
+        # ✅ Step 2: Go inside the article page to get the real date
+        article_date = ""
+        try:
+            article_resp = requests.get(link, headers=HEADERS, verify=False)
+            article_resp.raise_for_status()
+            article_soup = BeautifulSoup(article_resp.content, "html.parser")
+
+            time_tag = article_soup.find("time")
+            if time_tag:
+                raw_date = time_tag.get_text(strip=True)  # e.g. "Juli 3, 2025"
+                
+                # Map German months to English
+                month_map = {
+                    'Januar': 'January', 'Februar': 'February', 'März': 'March',
+                    'April': 'April', 'Mai': 'May', 'Juni': 'June', 'Juli': 'July',
+                    'August': 'August', 'September': 'September', 'Oktober': 'October',
+                    'November': 'November', 'Dezember': 'December'
+                }
+                for de, en in month_map.items():
+                    raw_date = raw_date.replace(de, en)
+
+                # Parse into proper date
+                article_date = datetime.strptime(raw_date, "%B %d, %Y").strftime("%Y-%m-%d")
+        except Exception as e:
+            article_date = ""
+
+        # Image (from listing)
+        img_url = ""
+        img_tag = heading.find_previous("img")
+        if img_tag:
+            img_url = img_tag.get("src") or img_tag.get("data-src", "")
+
+        # Summary (from listing, optional)
+        summary = ""
+        p_tag = heading.find_next("p")
+        if p_tag:
+            summary = p_tag.get_text(strip=True)
+
         articles.append({
             "Title": title,
+            "Date": article_date,
+            "DateText": article_date,       # e.g. "2025-07-03"
+            "Summary": summary,
+            "Image": img_url,
             "Link": translated_link,
-            "OriginalLink": link
+            "Source": "SAH Annahutte"
         })
 
     return articles
+
 
 
 # Example usage
