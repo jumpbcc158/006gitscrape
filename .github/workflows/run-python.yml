@@ -1,4 +1,7 @@
-name: Run scrapev2.py (commit CSV)
+
+# Regenerate the entire '.github/workflows/run-python.yml' file with corrected syntax and logic
+
+workflow_content = """name: Run scrapev2.py (commit CSV)
 
 on:
   workflow_dispatch: {}
@@ -33,6 +36,7 @@ jobs:
 
       - uses: browser-actions/setup-chrome@v1
         id: chrome
+
       - name: Show Chrome version
         run: ${{ steps.chrome.outputs.chrome-path }} --version
 
@@ -51,27 +55,36 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -euxo pipefail
-          
-              if [ -f export_combined.csv ]; then
-                git config user.name  "github-actions[bot]"
-                git config user.email "github-actions[bot]@users.noreply.github.com"
-                git add export_combined.csv
-                if git diff --staged --quiet; then
-                  echo "No changes to commit"
-                else
-                  git commit -m "Update export_combined.csv [skip ci]"
-                  git push
-                fi
-              else
-                echo "export_combined.csv not found"; exit 1
-              fi
+          if [ -f export_combined.csv ]; then
+            git config user.name  "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git add export_combined.csv
+            if git diff --staged --quiet; then
+              echo "No changes to commit"
+            else
+              git commit -m "Update export_combined.csv [skip ci]"
+              git push
+            fi
           else
             echo "export_combined.csv not found"; exit 1
-          fi
 
       - name: Upload artifact (optional)
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: output
-          path: export_combined.csvupdate my code
+          path: export_combined.csv
+"""
+
+# Save the corrected workflow to the appropriate file path
+output_path = ".github/workflows/run-python.yml"
+import os
+
+# Ensure the directory exists
+os.makedirs(os.path.dirname(output_path), exist_ok=True)
+
+# Write the content to the file
+with open(output_path, "w") as f:
+    f.write(workflow_content)
+
+print(f"Workflow file successfully updated at: {output_path}")
