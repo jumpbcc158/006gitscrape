@@ -264,6 +264,10 @@ header .wrap {
     }
     
 /* --- UNHIDE the dropdowns + search (your CSS currently hides them globally) --- */
+header .controls select,
+header .controls input[type="text"] {
+  display: inline-block !important;
+}
 
 /* --- Put title + filters on the SAME LINE --- */
 header .wrap {
@@ -327,10 +331,7 @@ header {
   min-height: 56px !important;            /* lower green bar height */
 }
 
-header .controls select,
-header .controls input[type="text"] {
-  display: none !important;
-}
+
 
 /* === BBC-style rail (Left • Center/Lead • Right) === */
 .bbc-rail {
