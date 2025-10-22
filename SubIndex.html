@@ -1,148 +1,292 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Competitor News – Hybrid BBC Style</title>
-<style>
-:root {
-  --brand: #00a99d;
-  --brand-dark: #008a81;
-  --bg: #fff;
-  --ink: #000;
-  --border: #ddd;
-}
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Competitor News</title>
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --card: #ffffff;
+      --ink: #0f172a;
+      --ink-light: #334155;
+      --ink-lighter: #64748b;
+      --brand: #00a99d;
+      --brand-dark: #008a81;
+      --brand-light: #e6f7f6;
+      --border: #e2e8f0;
+      --border-light: #f1f5f9;
+      --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+      --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+      --shadow-md: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+      --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+      --shadow-xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+      --max: 1280px;
+      --radius: 12px;
+      --radius-lg: 16px;
+    }
+    
+    select {
+        display: none !important;
+      }
 
-/* Reset */
-* { box-sizing: border-box; margin: 0; padding: 0; }
-body {
-  font-family: 'Helvetica Neue', Arial, sans-serif;
-  background: var(--bg);
-  color: var(--ink);
-}
+    select,
+        input[type="text"],
+        img,         /* Hides all images (including logos) */
+        .logo,       /* Hides any element with class="logo" */
+        #logo        /* Hides any element with id="logo" */
+        {
+          display: none !important;
+        }
+        
+    * { box-sizing: border-box; }
+    
+    html, body { 
+      height: 100%; 
+      margin: 0; 
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+      color: var(--ink); 
+      background: var(--bg); 
+      scroll-behavior: smooth;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      font-size: 16px;
+    }
 
-/* Header */
-header {
-  background: linear-gradient(135deg, var(--brand) 0%, #1cc2b5 100%);
-  color: #fff;
-  padding: 24px;
-  text-align: center;
-}
-header h1 {
-  font-size: 28px;
-  font-weight: 700;
-}
+    input[type="text"] {
+      display: none !important;
+    }
 
-/* Controls */
-.controls {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: 16px;
-  margin-top: 16px;
-}
-.control select, .control input {
-  width: 100%;
-  padding: 12px;
-  border: 1px solid var(--border);
-  font-size: 14px;
-}
+    .wrap { 
+      max-width: var(--max); 
+      margin: 0 auto; 
+      padding: 32px 24px;
+    }
 
-/* Main content */
-main.wrap {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 32px 16px;
-}
+    header { 
+      background: linear-gradient(135deg, var(--brand) 0%, #1cc2b5 100%);
+      color: #fff;
+      box-shadow: var(--shadow-md);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      backdrop-filter: blur(8px);
+    }
+    
+    header .wrap { 
+      padding: 40px 24px 32px;
+    }
 
-/* Grid */
-.grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-  gap: 24px;
-}
+    .brand-vertical { 
+      display: flex; 
+      flex-direction: column; 
+      align-items: center; 
+      gap: 24px; 
+      text-align: center;
+      margin-bottom: 32px;
+    }
+    
+    .logo { 
+      width: 240px; 
+      aspect-ratio: 16/9; 
+      border-radius: var(--radius-lg);
+      background: #fff; 
+      display: grid; 
+      place-items: center; 
+      overflow: hidden; 
+      box-shadow: var(--shadow-lg);
+      border: 3px solid rgba(255, 255, 255, 0.2);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    
+    .logo:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-xl);
+    }
+    
+    .logo img { 
+      width: 100%; 
+      height: 100%; 
+      object-fit: contain;
+      padding: 12px;
+    }
 
-/* Card */
-.card {
-  border: 1px solid var(--border);
-  box-shadow: none;
-  border-radius: 0;
-  display: flex;
-  flex-direction: column;
-  background: #fff;
-}
-.card img.thumb {
-  width: 100%;
-  height: auto;
-  object-fit: cover;
-}
-.pad { padding: 16px; }
-.title {
-  font-size: 18px;
-  font-weight: 700;
-  margin-bottom: 8px;
-}
-.meta {
-  font-size: 13px;
-  color: #666;
-  border-bottom: 1px solid #eee;
-  padding-bottom: 8px;
-  margin-bottom: 8px;
-}
-.summary {
-  font-size: 14px;
-  color: #444;
-  margin-bottom: 12px;
-}
-.actions {
-  display: flex;
-  gap: 8px;
-  padding: 0 16px 16px;
-}
-.link {
-  flex: 1;
-  text-align: center;
-  text-decoration: none;
-  padding: 10px 14px;
-  border: 1px solid var(--border);
-  font-weight: 600;
-  font-size: 14px;
-  color: #333;
-  background: #fff;
-  transition: background 0.2s ease;
-}
-.link:hover {
-  background: var(--brand);
-  color: #fff;
-}
-.link.primary {
-  background: var(--brand);
-  color: #fff;
-}
-.link.primary:hover {
-  background: var(--brand-dark);
-}
+    h1 { 
+      margin: 0; 
+      font-size: 36px; 
+      font-weight: 700; 
+      letter-spacing: -0.5px; 
+      color: #fff;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
 
-/* Responsive */
-@media (max-width: 768px) {
-  header h1 { font-size: 24px; }
-  .title { font-size: 16px; }
-}
-</style>
+    .controls { 
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 16px;
+      margin-top: 24px;
+    }
+
+    .control { position: relative; }
+    
+    .control select, 
+    .control input { 
+      width: 100%;
+      padding: 16px 18px;
+      border-radius: var(--radius);
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(8px);
+      outline: none;
+      font-size: 17px;
+      font-weight: 600;
+      color: var(--ink);
+      transition: all 0.2s ease;
+      box-shadow: var(--shadow-sm);
+      cursor: pointer;
+    }
+    
+    .control:nth-child(1) select {
+      background: linear-gradient(135deg, #fff 0%, #f0f9ff 100%);
+      border-color: rgba(59, 130, 246, 0.3);
+    }
+    
+    .control:nth-child(2) select {
+      background: linear-gradient(135deg, #fff 0%, #f0fdf4 100%);
+      border-color: rgba(34, 197, 94, 0.3);
+    }
+    
+    .control:nth-child(3) input {
+      background: linear-gradient(135deg, #fff 0%, #fefce8 100%);
+      border-color: rgba(234, 179, 8, 0.3);
+    }
+    
+    .control:nth-child(4) select {
+      background: linear-gradient(135deg, #fff 0%, #fdf4ff 100%);
+      border-color: rgba(168, 85, 247, 0.3);
+    }
+    
+    .control select:hover,
+    .control input:hover {
+      border-color: rgba(255, 255, 255, 0.6);
+      transform: translateY(-1px);
+      box-shadow: var(--shadow);
+    }
+    
+    .control select:focus, 
+    .control input:focus { 
+      border-color: #fff;
+      background: #fff;
+      box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.25), var(--shadow);
+      transform: translateY(-1px);
+    }
+
+    main.wrap { padding-top: 40px; padding-bottom: 80px; }
+
+    .article-count {
+      display: flex; justify-content: center; align-items: center;
+      margin: 0 0 32px;
+      font-size: 17px; font-weight: 600; color: var(--ink-light);
+      padding: 14px 28px; background: var(--card); border-radius: var(--radius);
+      box-shadow: var(--shadow-sm); border: 1px solid var(--border);
+    }
+
+    .grid { 
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+      gap: 24px; margin-top: 32px;
+    }
+
+    .card { 
+      background: var(--card); border-radius: var(--radius-lg);
+      box-shadow: var(--shadow); border: 1px solid var(--border-light);
+      overflow: hidden; display: flex; flex-direction: column;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      animation: fadeIn 0.4s ease; height: 100%;
+    }
+    
+    .card:hover { transform: translateY(-6px); box-shadow: var(--shadow-lg); border-color: var(--border); }
+    
+    .thumb { width: 100%; aspect-ratio: 16/9; background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%); object-fit: cover; transition: transform 0.3s ease; }
+    .card:hover .thumb { transform: scale(1.05); }
+    
+    .pad { padding: 24px 28px; flex: 1; display: flex; flex-direction: column; }
+
+    .title { font-weight: 700; font-size: 20px; line-height: 1.4; margin: 0 0 14px; color: var(--ink);
+      display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    
+    .summary { color: var(--ink-lighter); font-size: 16px; line-height: 1.6;
+      display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
+      margin-bottom: 18px; flex: 1; }
+    
+    .meta { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin: 0 0 18px; font-size: 15px;
+      color: var(--ink-lighter); padding-bottom: 18px; border-bottom: 1px solid var(--border-light); }
+    
+    .meta .chip { background: var(--brand-light); color: var(--brand-dark); padding: 8px 14px; border-radius: 8px; font-weight: 600; font-size: 14px; letter-spacing: 0.3px; transition: all 0.2s ease; }
+    .meta .chip:hover { background: var(--brand); color: white; }
+    .meta .chip.line { background: #eef2ff; color: #4f46e5; }
+    .meta .chip.line:hover { background: #4f46e5; color: white; }
+
+    .actions { display: flex; gap: 12px; padding: 0 28px 24px; }
+    .link { flex: 1; text-align: center; text-decoration: none; padding: 14px 18px; border-radius: var(--radius); border: 2px solid var(--border); background: #fff; font-weight: 600; font-size: 16px; color: var(--ink-light); transition: all 0.2s ease; display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
+    .link:hover { border-color: var(--ink-light); background: var(--ink-light); color: white; transform: translateY(-1px); box-shadow: var(--shadow); }
+    .link.primary { background: var(--brand); color: #fff; border-color: var(--brand); }
+    .link.primary:hover { background: var(--brand-dark); border-color: var(--brand-dark); box-shadow: var(--shadow-md); }
+
+    .empty, #status { background: var(--card); border: 2px dashed var(--border); padding: 48px 32px; border-radius: var(--radius-lg); text-align: center; color: var(--ink-lighter); margin-top: 32px; font-size: 18px; font-weight: 500; }
+
+    .pager { display: flex; justify-content: center; align-items: center; margin: 48px 0 24px; gap: 16px; }
+    .btn { padding: 14px 28px; border-radius: var(--radius); border: 2px solid var(--border); background: var(--card); cursor: pointer; font-weight: 600; font-size: 16px; color: var(--ink-light); transition: all 0.2s ease; box-shadow: var(--shadow-sm); }
+    .btn:hover:not(:disabled) { border-color: var(--brand); background: var(--brand); color: white; transform: translateY(-1px); box-shadow: var(--shadow); }
+    .btn:disabled { opacity: 0.4; cursor: not-allowed; background: var(--border-light); }
+    #pageInfo { font-weight: 600; color: var(--ink-light); min-width: 140px; text-align: center; font-size: 17px; }
+
+    #backToTop { position: fixed; bottom: 32px; right: 32px; background: var(--brand); color: white; border: none; padding: 18px 24px; border-radius: var(--radius); cursor: pointer; display: none; box-shadow: var(--shadow-lg); font-weight: 700; font-size: 18px; transition: all 0.3s ease; z-index: 50; }
+    #backToTop:hover { background: var(--brand-dark); transform: translateY(-4px); box-shadow: var(--shadow-xl); }
+
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+    @media (max-width: 768px) {
+      h1 { font-size: 30px; }
+      .logo { width: 200px; }
+      .controls { grid-template-columns: 1fr; }
+      .grid { grid-template-columns: 1fr; gap: 20px; }
+      .wrap { padding: 24px 16px; }
+      header .wrap { padding: 32px 16px 24px; }
+      .title { font-size: 18px; }
+      .summary { font-size: 15px; }
+      .control select, .control input { font-size: 16px; }
+      #backToTop { bottom: 20px; right: 20px; padding: 16px 20px; font-size: 16px; }
+    }
+
+    @media (max-width: 480px) {
+      h1 { font-size: 26px; }
+      .title { font-size: 17px; }
+      .summary { font-size: 14px; }
+      .actions { flex-direction: column; }
+      .link { width: 100%; }
+    }
+  </style>
 </head>
 <body>
+
 <header>
-  <h1>Competitor News</h1>
-  <div class="controls">
-    <div class="control"><select id="source"><option value="">All Companies</option></select></div>
-    <div class="control"><select id="line"><option value="">All Product Lines</option><option value="CRP">CRP</option><option value="Bars">Bars</option><option value="Geotec">Geotec</option></select></div>
-    <div class="control"><input type="text" id="search" placeholder="🔍 Search keyword..." /></div>
-    <div class="control">
-      <select id="sort">
-        <option value="date_desc">📅 Newest First</option>
-        <option value="date_asc">📅 Oldest First</option>
-        <option value="title_asc">🔤 Title A–Z</option>
-        <option value="title_desc">🔤 Title Z–A</option>
-      </select>
+  <div class="wrap">
+    <div class="brand-vertical">
+      <div class="logo" title="Brand"><img id="brandImg" alt="Brand"></div>
+      <h1>Competitor News</h1>
+    </div>
+    <div class="controls">
+      <div class="control"><select id="source"><option value="">All Companies</option></select></div>
+      <div class="control"><select id="line"><option value="">All Product Lines</option><option value="CRP">CRP</option><option value="Bars">Bars</option><option value="Geotec">Geotec</option></select></div>
+      <div class="control"><input type="text" id="search" placeholder="🔍 Search keyword..." /></div>
+      <div class="control">
+        <select id="sort">
+          <option value="date_desc">📅 Newest First</option>
+          <option value="date_asc">📅 Oldest First</option>
+          <option value="title_asc">🔤 Title A–Z</option>
+          <option value="title_desc">🔤 Title Z–A</option>
+        </select>
+      </div>
     </div>
   </div>
 </header>
@@ -509,5 +653,6 @@ main.wrap {
 
   setHeaderLogo();
   loadCSV();
+</script>
 </body>
 </html>
