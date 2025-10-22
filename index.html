@@ -11,7 +11,7 @@
       --ink: #0f172a;
       --ink-light: #334155;
       --ink-lighter: #64748b;
-      --brand: #00a99d;
+      --brand: #04cc9e;
       --brand-dark: #008a81;
       --brand-light: #e6f7f6;
       --border: #e2e8f0;
@@ -26,6 +26,11 @@
       --radius-lg: 16px;
     }
     
+    select {
+        display: none !important;
+      }
+  
+
     * { box-sizing: border-box; }
     
     html, body { 
@@ -38,6 +43,10 @@
       -webkit-font-smoothing: antialiased;
       -moz-osx-font-smoothing: grayscale;
       font-size: 16px;
+    }
+
+    input[type="text"] {
+      display: none !important;
     }
 
     .wrap { 
@@ -56,43 +65,64 @@
       backdrop-filter: blur(8px);
     }
     
-    header .wrap { 
-      padding: 40px 24px 32px;
+  
+  
+
+    header .wrap {
+      padding: 10px 20px; /* Balanced vertical and horizontal padding */
     }
 
-    .brand-vertical { 
-      display: flex; 
-      flex-direction: column; 
-      align-items: center; 
-      gap: 24px; 
-      text-align: center;
-      margin-bottom: 32px;
+
+
+
+   
+    .brand-vertical {
+      display: flex;
+      flex-direction: row;      /* Arrange children in a row */
+      align-items: center;      /* Vertically center logo and text */
+      gap: 14px;                /* Space between logo and text */
+      text-align: left;
+      margin-bottom: 8px;
+      padding: 0;
     }
-    
-    .logo { 
-      width: 240px; 
-      aspect-ratio: 16/9; 
-      border-radius: var(--radius-lg);
-      background: #fff; 
-      display: grid; 
-      place-items: center; 
-      overflow: hidden; 
-      box-shadow: var(--shadow-lg);
-      border: 3px solid rgba(255, 255, 255, 0.2);
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+    .logo {
+      width: 56px;              /* Adjust as needed */
+      height: 56px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #fff;
+      border-radius: 8px;
+      margin: 0;
+      padding: 0;
+      box-shadow: none;
+      border: none;
     }
+
+    .logo img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      padding: 0;
+    }
+
+    .brand-vertical h1 {
+      font-size: 1.5em;
+      font-weight: 700;
+      margin: 0;
+      padding: 0;
+      color: #fff;
+      background: none;
+      line-height: 1;
+    }
+
     
     .logo:hover {
       transform: translateY(-2px);
       box-shadow: var(--shadow-xl);
     }
     
-    .logo img { 
-      width: 100%; 
-      height: 100%; 
-      object-fit: contain;
-      padding: 12px;
-    }
 
     h1 { 
       margin: 0; 
