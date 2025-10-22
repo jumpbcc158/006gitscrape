@@ -26,6 +26,9 @@
       --radius-lg: 16px;
     }
     
+  
+  
+
     * { box-sizing: border-box; }
     
     html, body { 
@@ -39,127 +42,79 @@
       -moz-osx-font-smoothing: grayscale;
       font-size: 16px;
     }
-    
+
+   
     .wrap { 
       max-width: var(--max); 
       margin: 0 auto; 
       padding: 32px 24px;
     }
 
-   
+    
 header {
-  background: linear-gradient(135deg, var(--brand) 0%, #1cc2b5 100%);
+  background: #00a99d; /* Solid Stribe green */
   color: #fff;
+  box-shadow: var(--shadow-md);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  min-height: 72px; /* Adjust for your preferred bar height */
+  display: flex;
+  align-items: center;      /* Vertically center everything in the bar */
+}
+
+
+header .wrap {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 8px 8px; /* ↓ Reduced from 40px or 16px to 8px top/bottom */
-  box-shadow: var(--shadow-md);
-  flex-wrap: wrap;
-  gap: 16px;
+  padding: 8px 16px; /* Less green space */
+  gap: 12px;
+  flex-wrap: wrap; /* Wrap on small screens */
 }
 
-    .header-flex {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 24px;
-      padding: 8px 16px;
-    }
 
-    .header-left {
-      display: flex;
-      align-items: center;
-      gap: 16px;
-    }
+.brand-vertical {
+  display: flex;
+  flex-direction: row;
+  align-items: center;      /* Vertically center logo and text */
+  gap: 20px;                /* Space between logo and text */
+}
 
-.header-left .logo {
+.logo {
   width: 100px; /* ↓ Smaller logo */
   aspect-ratio: 4/3;
-}
-.header-left h1 {
-  font-size: 20px; /* ↓ Compact title */
-  margin: 0;
-}
-
-
-    .header-right {
-      display: flex;
-      gap: 12px;
-      flex-wrap: wrap; /* For smaller screens */
-    }
-
-    .header-right .control select,
-    .header-right .control input {
-      padding: 10px 12px;
-      font-size: 15px;
-      border-radius: 8px;
-    }
-    
-.header-inline {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 24px;
-  padding: 16px 24px;
-  flex-wrap: wrap; /* Allows wrapping on smaller screens */
-}
-
-.header-left {
   display: flex;
   align-items: center;
-  gap: 16px;
-}
-
-.header-right {
-  display: flex;
-  gap: 12px;
-}
-
-.header-right select,
-.header-right input {
-  padding: 10px 12px;
-  font-size: 15px;
+  justify-content: center;
+  background: #fff;
   border-radius: 8px;
+  margin: 0;
+  padding: 0;
+  box-shadow: none;
+  border: none;
 }
-    
-    header .wrap { 
-      padding: 40px 24px 32px;
-    }
 
-    .brand-vertical { 
-      display: flex; 
-      flex-direction: column; 
-      align-items: center; 
-      gap: 24px; 
-      text-align: center;
-      margin-bottom: 32px;
-    }
+.logo img {
+  width: 100%;
+  height: 90%;
+  object-fit: contain;
+  padding: 0;
+}
+
+.brand-vertical h1 {
+  font-size: 2em;
+  font-weight: 700;
+  margin: 0;
+  padding: 0;
+  color: #fff;
+  background: none;
+  line-height: 1;
+  display: flex;
+  align-items: center; /* Vertically center text with logo */
+}
+
     
-    .logo { 
-      width: 240px; 
-      aspect-ratio: 16/9; 
-      border-radius: var(--radius-lg);
-      background: #fff; 
-      display: grid; 
-      place-items: center; 
-      overflow: hidden; 
-      box-shadow: var(--shadow-lg);
-      border: 3px solid rgba(255, 255, 255, 0.2);
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
-    }
-    
-    .logo:hover {
-      transform: translateY(-2px);
-      box-shadow: var(--shadow-xl);
-    }
-    
-    .logo img { 
-      width: 100%; 
-      height: 100%; 
-      object-fit: contain;
-      padding: 12px;
-    }
 
     h1 { 
       margin: 0; 
@@ -171,30 +126,21 @@ header {
     }
 
     .controls { 
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-      gap: 16px;
-      margin-top: 24px;
+      display: flex;
+      gap: 8px;
     }
 
     .control { position: relative; }
     
-    .control select, 
-    .control input { 
-      width: 100%;
-      padding: 16px 18px;
-      border-radius: var(--radius);
-      border: 2px solid rgba(255, 255, 255, 0.3);
-      background: rgba(255, 255, 255, 0.95);
-      backdrop-filter: blur(8px);
-      outline: none;
-      font-size: 17px;
-      font-weight: 600;
-      color: var(--ink);
-      transition: all 0.2s ease;
-      box-shadow: var(--shadow-sm);
-      cursor: pointer;
-    }
+
+.controls .control select,
+.controls .control input {
+  padding: 6px 8px; /* Smaller boxes */
+  font-size: 14px;
+  border-radius: 6px;
+  width: auto; /* No full width */
+}
+
     
     .control:nth-child(1) select {
       background: linear-gradient(135deg, #fff 0%, #f0f9ff 100%);
@@ -315,31 +261,106 @@ header {
       .actions { flex-direction: column; }
       .link { width: 100%; }
     }
+    
+/* --- UNHIDE the dropdowns + search (your CSS currently hides them globally) --- */
+header .controls select,
+header .controls input[type="text"] {
+  display: inline-block !important;
+}
+
+/* --- Put title + filters on the SAME LINE --- */
+header .wrap {
+  display: flex !important;
+  align-items: center !important;         /* vertical centering */
+  justify-content: space-between !important; /* title left, filters right */
+  gap: 12px !important;
+  padding: 8px 16px !important;           /* trims the green bar height */
+}
+
+/* Title block stays compact on the left */
+header .brand-vertical {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  gap: 12px !important;
+  margin: 0 !important;
+}
+
+/* Optional compact logo/title */
+header .logo {
+  width: 80px !important;
+  aspect-ratio: 16/9;
+  display: grid;
+  place-items: center;
+}
+header .logo img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+header .brand-vertical h1 {
+  margin: 0 !important;
+  font-size: 20px !important;
+  line-height: 1.2 !important;
+}
+
+/* --- Filters: one line on the RIGHT --- */
+header .controls {
+  display: flex !important;               /* change from grid → flex */
+  align-items: center !important;
+  gap: 8px !important;
+  margin: 0 !important;                   /* remove the top margin that pushes it below the title */
+  flex-wrap: nowrap !important;           /* keep them in one row */
+}
+
+/* Make each control box smaller and not full-width */
+header .controls .control {
+  display: inline-flex !important;
+}
+header .controls .control select,
+header .controls .control input[type="text"] {
+  width: auto !important;                 /* prevent 100% width */
+  padding: 6px 10px !important;           /* smaller boxes */
+  font-size: 14px !important;
+  border-radius: 6px !important;
+}
+
+/* Optional: hard cap header height if your theme is still tall */
+header {
+  min-height: 56px !important;            /* lower green bar height */
+}
+
+
+header .controls select,
+header .controls input[type="text"] {
+  display: none !important;
+}
+
   </style>
 </head>
 <body>
 
-
 <header>
-  <div class="wrap header-inline">
-    <div class="header-left">
-      <div class="logo"><img id="brandImg" alt="Brand"></div>
+  <div class="wrap">
+    <div class="brand-vertical">
+      <div class="logo" title="Brand"><img id="brandImg" alt="Brand"></div>
       <h1>Competitor News</h1>
     </div>
-    <div class="header-right">
-      <select id="source"><option value="">All Companies</option></select>
-      <select id="line"><option value="">All Product Lines</option><option value="CRP">CRP</option><option value="Bars">Bars</option><option value="Geotec">Geotec</option></select>
-      <input type="text" id="search" placeholder="🔍 Search keyword...">
-      <select id="sort">
-        <option value="date_desc">📅 Newest First</option>
-        <option value="date_asc">📅 Oldest First</option>
-        <option value="title_asc">🔤 Title A–Z</option>
-        <option value="title_desc">🔤 Title Z–A</option>
-      </select>
+    <div class="controls">
+      <div class="control"><select id="source"><option value="">All Companies</option></select></div>
+      <div class="control"><select id="line"><option value="">All Product Lines</option><option value="CRP">CRP</option><option value="Bars">Bars</option><option value="Geotec">Geotec</option></select></div>
+      <div class="control"><input type="text" id="search" placeholder="🔍 Search keyword..." /></div>
+      <div class="control">
+        <select id="sort">
+          <option value="date_desc">📅 Newest First</option>
+          <option value="date_asc">📅 Oldest First</option>
+          <option value="title_asc">🔤 Title A–Z</option>
+          <option value="title_desc">🔤 Title Z–A</option>
+        </select>
+      </div>
     </div>
   </div>
 </header>
-
 
 <main class="wrap">
   <div id="status" class="empty">Loading articles…</div>
