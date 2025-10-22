@@ -226,8 +226,41 @@ header .wrap {
     .actions { display: flex; gap: 12px; padding: 0 28px 24px; }
     .link { flex: 1; text-align: center; text-decoration: none; padding: 14px 18px; border-radius: var(--radius); border: 2px solid var(--border); background: #fff; font-weight: 600; font-size: 16px; color: var(--ink-light); transition: all 0.2s ease; display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
     .link:hover { border-color: var(--ink-light); background: var(--ink-light); color: white; transform: translateY(-1px); box-shadow: var(--shadow); }
-    .link.primary { background: var(--brand); color: #fff; border-color: var(--brand); }
-    .link.primary:hover { background: var(--brand-dark); border-color: var(--brand-dark); box-shadow: var(--shadow-md); }
+
+/* Primary button: modern, bold */
+.link.primary {
+  background: var(--brand);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 16px;
+  font-size: 15px;
+  font-weight: 600;
+  transition: background 0.3s ease, transform 0.2s ease;
+}
+.link.primary:hover {
+  background: var(--brand-dark);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+/* Secondary button: softer look */
+.link.secondary {
+  background: var(--brand-light);
+  color: var(--brand-dark);
+  border: none;
+  border-radius: 8px;
+  padding: 12px 16px;
+  font-size: 15px;
+  font-weight: 500;
+  transition: background 0.3s ease, transform 0.2s ease;
+}
+.link.secondary:hover {
+  background: var(--brand);
+  color: #fff;
+  transform: translateY(-2px);
+  box-shadow: var(--shadow);
+}
 
     .empty, #status { background: var(--card); border: 2px dashed var(--border); padding: 48px 32px; border-radius: var(--radius-lg); text-align: center; color: var(--ink-lighter); margin-top: 32px; font-size: 18px; font-weight: 500; }
 
@@ -458,6 +491,54 @@ header {
   .rail-right  { order: 3; }
   .card--lead .thumb { height: 220px; }
 }
+
+
+.card--side .actions {
+  display: flex !important; /* or inline-flex */
+  gap: 8px;
+  padding: 0 5px 5px;
+}
+
+
+.card--side {
+  height: auto; /* Let content define height */
+  display: flex;
+  flex-direction: column;
+  padding-bottom: 12px; /* Slight breathing room */
+}
+
+
+.pad {
+  padding-bottom: 0 !important; /* Remove bottom padding */
+}
+
+.actions {
+  padding-top: 0 !important; /* Remove top padding */
+  margin-top: 0 !important;  /* Kill any margin */
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+}
+
+
+.pad {
+  padding-bottom: 8px !important; /* Reduce from 24px */
+}
+
+.actions {
+  padding-top: 0 !important; /* Remove top padding */
+  padding-bottom: 16px !important; /* Keep bottom breathing room */
+  margin-top: 0 !important;
+}
+
+.actions .link {
+  padding: 10px 14px !important;
+  font-size: 14px !important;
+}
+
+
 
 
   </style>
