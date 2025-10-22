@@ -28,6 +28,37 @@
     
     * { box-sizing: border-box; }
     
+    html, body { 
+      height: 100%; 
+      margin: 0; 
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+      color: var(--ink); 
+      background: var(--bg); 
+      scroll-behavior: smooth;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      font-size: 16px;
+    }
+    
+    .wrap { 
+      max-width: var(--max); 
+      margin: 0 auto; 
+      padding: 32px 24px;
+    }
+
+   
+header {
+  background: linear-gradient(135deg, var(--brand) 0%, #1cc2b5 100%);
+  color: #fff;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 8px; /* ↓ Reduced from 40px or 16px to 8px top/bottom */
+  box-shadow: var(--shadow-md);
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
     .header-flex {
       display: flex;
       justify-content: space-between;
@@ -42,15 +73,15 @@
       gap: 16px;
     }
 
-    .header-left .logo {
-      width: 120px;
-      aspect-ratio: 16/9;
-    }
+.header-left .logo {
+  width: 120px; /* ↓ Smaller logo */
+  aspect-ratio: 16/9;
+}
+.header-left h1 {
+  font-size: 20px; /* ↓ Compact title */
+  margin: 0;
+}
 
-    .header-left h1 {
-      font-size: 24px;
-      margin: 0;
-    }
 
     .header-right {
       display: flex;
@@ -91,35 +122,6 @@
   font-size: 15px;
   border-radius: 8px;
 }
-
-
-    html, body { 
-      height: 100%; 
-      margin: 0; 
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
-      color: var(--ink); 
-      background: var(--bg); 
-      scroll-behavior: smooth;
-      -webkit-font-smoothing: antialiased;
-      -moz-osx-font-smoothing: grayscale;
-      font-size: 16px;
-    }
-    
-    .wrap { 
-      max-width: var(--max); 
-      margin: 0 auto; 
-      padding: 32px 24px;
-    }
-
-    header { 
-      background: linear-gradient(135deg, var(--brand) 0%, #1cc2b5 100%);
-      color: #fff;
-      box-shadow: var(--shadow-md);
-      position: sticky;
-      top: 0;
-      z-index: 100;
-      backdrop-filter: blur(8px);
-    }
     
     header .wrap { 
       padding: 40px 24px 32px;
@@ -318,7 +320,6 @@
 <body>
 
 
-
 <header>
   <div class="wrap header-inline">
     <div class="header-left">
@@ -338,7 +339,6 @@
     </div>
   </div>
 </header>
-
 
 
 <main class="wrap">
