@@ -538,7 +538,82 @@ header {
   font-size: 14px !important;
 }
 
+/* Reduce padding inside the main content area */
+.card--lead .pad {
+  padding-bottom: 8px !important; /* was 24px */
+}
 
+/* Remove extra gap above buttons */
+.card--lead .actions {
+  padding-top: 0 !important;
+  margin-top: 0 !important;
+}
+
+
+.card--lead {
+  display: flex;
+  flex-direction: column;
+}
+
+.card--lead .pad {
+  flex: 1; /* Push content up */
+}
+
+.card--lead .actions {
+  margin-top: auto; /* Buttons at bottom */
+}
+
+.card--side .title {
+  font-size: 16px !important; /* Reduce from 18px */
+  line-height: 1.3;
+  margin-bottom: 6px;
+}
+
+.card--side .meta {
+  font-size: 13px !important; /* Slightly smaller for tags/date */
+}
+
+.card--side .actions .link {
+  font-size: 14px !important; /* Buttons smaller for balance */
+}
+
+
+/* Make the hero image taller */
+.card--lead .thumb {
+  height: 480px !important; /* Increase from ~320px */
+  object-fit: cover; /* Keep aspect ratio clean */
+}
+
+/* Make the title stand out */
+.card--lead .title {
+  font-size: 36px !important; /* Bigger headline */
+  font-weight: 700;
+  line-height: 1.3;
+  margin-bottom: 12px;
+}
+
+/* Optional: enlarge summary slightly */
+.card--lead .summary {
+  font-size: 17px !important;
+  line-height: 1.6;
+}
+
+
+/* Remove bottom padding from .pad */
+.pad {
+  padding-bottom: 0 !important;
+}
+
+/* Optional: tighten top padding too */
+.pad {
+  padding-top: 16px !important; /* or keep original if needed */
+}
+
+/* Ensure buttons stay aligned */
+.actions {
+  padding-top: 0 !important;
+  margin-top: 0 !important;
+}
 
 
   </style>
