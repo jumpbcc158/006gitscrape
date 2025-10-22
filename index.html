@@ -26,9 +26,7 @@
       --radius-lg: 16px;
     }
     
-    select {
-        display: none !important;
-      }
+  
   
 
     * { box-sizing: border-box; }
@@ -45,10 +43,7 @@
       font-size: 16px;
     }
 
-    input[type="text"] {
-      display: none !important;
-    }
-
+   
     .wrap { 
       max-width: var(--max); 
       margin: 0 auto; 
@@ -68,13 +63,16 @@ header {
   align-items: center;      /* Vertically center everything in the bar */
 }
 
+
 header .wrap {
-  width: 100%;
   display: flex;
-  justify-content: flex-start;  /* Center content horizontally */
-  align-items: center;      /* Vertically center content */
-  padding: 0;               /* Remove extra padding */
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 16px; /* Less green space */
+  gap: 12px;
+  flex-wrap: wrap; /* Wrap on small screens */
 }
+
 
 .brand-vertical {
   display: flex;
@@ -84,8 +82,8 @@ header .wrap {
 }
 
 .logo {
-  width: 56px;              /* Bigger logo */
-  height: 56px;
+  width: 100px; /* ↓ Smaller logo */
+  aspect-ratio: 4/3;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -98,7 +96,7 @@ header .wrap {
 }
 
 .logo img {
-  width: 90%;
+  width: 100%;
   height: 90%;
   object-fit: contain;
   padding: 0;
@@ -128,30 +126,21 @@ header .wrap {
     }
 
     .controls { 
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-      gap: 16px;
-      margin-top: 24px;
+      display: flex;
+      gap: 8px;
     }
 
     .control { position: relative; }
     
-    .control select, 
-    .control input { 
-      width: 100%;
-      padding: 16px 18px;
-      border-radius: var(--radius);
-      border: 2px solid rgba(255, 255, 255, 0.3);
-      background: rgba(255, 255, 255, 0.95);
-      backdrop-filter: blur(8px);
-      outline: none;
-      font-size: 17px;
-      font-weight: 600;
-      color: var(--ink);
-      transition: all 0.2s ease;
-      box-shadow: var(--shadow-sm);
-      cursor: pointer;
-    }
+
+.controls .control select,
+.controls .control input {
+  padding: 6px 8px; /* Smaller boxes */
+  font-size: 14px;
+  border-radius: 6px;
+  width: auto; /* No full width */
+}
+
     
     .control:nth-child(1) select {
       background: linear-gradient(135deg, #fff 0%, #f0f9ff 100%);
@@ -272,6 +261,77 @@ header .wrap {
       .actions { flex-direction: column; }
       .link { width: 100%; }
     }
+    
+/* --- UNHIDE the dropdowns + search (your CSS currently hides them globally) --- */
+header .controls select,
+header .controls input[type="text"] {
+  display: inline-block !important;
+}
+
+/* --- Put title + filters on the SAME LINE --- */
+header .wrap {
+  display: flex !important;
+  align-items: center !important;         /* vertical centering */
+  justify-content: space-between !important; /* title left, filters right */
+  gap: 12px !important;
+  padding: 8px 16px !important;           /* trims the green bar height */
+}
+
+/* Title block stays compact on the left */
+header .brand-vertical {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  gap: 12px !important;
+  margin: 0 !important;
+}
+
+/* Optional compact logo/title */
+header .logo {
+  width: 80px !important;
+  aspect-ratio: 16/9;
+  display: grid;
+  place-items: center;
+}
+header .logo img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+header .brand-vertical h1 {
+  margin: 0 !important;
+  font-size: 20px !important;
+  line-height: 1.2 !important;
+}
+
+/* --- Filters: one line on the RIGHT --- */
+header .controls {
+  display: flex !important;               /* change from grid → flex */
+  align-items: center !important;
+  gap: 8px !important;
+  margin: 0 !important;                   /* remove the top margin that pushes it below the title */
+  flex-wrap: nowrap !important;           /* keep them in one row */
+}
+
+/* Make each control box smaller and not full-width */
+header .controls .control {
+  display: inline-flex !important;
+}
+header .controls .control select,
+header .controls .control input[type="text"] {
+  width: auto !important;                 /* prevent 100% width */
+  padding: 6px 10px !important;           /* smaller boxes */
+  font-size: 14px !important;
+  border-radius: 6px !important;
+}
+
+/* Optional: hard cap header height if your theme is still tall */
+header {
+  min-height: 56px !important;            /* lower green bar height */
+}
+
+
+
   </style>
 </head>
 <body>
