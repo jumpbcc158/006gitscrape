@@ -186,6 +186,7 @@ header .wrap {
       padding: 14px 28px; background: var(--card); border-radius: var(--radius);
       box-shadow: var(--shadow-sm); border: 1px solid var(--border);
     }
+    
 
     .grid { 
       display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
@@ -330,6 +331,35 @@ header {
   min-height: 56px !important;            /* lower green bar height */
 }
 
+header .controls select,
+header .controls input[type="text"] {
+  display: none !important;
+}
+
+/* === BBC-style rail (Left • Center/Lead • Right) === */
+.bbc-rail {
+  display: grid;
+  grid-template-columns: 1fr minmax(0, 1.6fr) 1fr; /* center is wider */
+  gap: 24px;
+  margin-top: 24px;
+}
+
+/* Reuse your .card but size text differently for lead vs side */
+.card--lead .title { font-size: 26px; line-height: 1.3; }
+.card--lead .summary { -webkit-line-clamp: 4; }
+.card--side .title { font-size: 18px; }
+.card--side .summary { -webkit-line-clamp: 2; }
+
+/* Make lead image feel more “hero” */
+.card--lead .thumb { aspect-ratio: 16/9; object-fit: cover; }
+
+/* Responsive behavior */
+@media (max-width: 1100px) {
+  .bbc-rail { grid-template-columns: 1fr; }
+  .rail-center { order: 1; }
+  .rail-left { order: 2; }
+  .rail-right { order: 3; }
+}
 
   </style>
 </head>
@@ -360,6 +390,12 @@ header {
 <main class="wrap">
   <div id="status" class="empty">Loading articles…</div>
   <div class="article-count" id="articleCount" hidden></div>
+  <section id="rail" class="bbc-rail" hidden>
+  <div class="rail-left"></div>
+  <div class="rail-center"></div>
+  <div class="rail-right"></div>
+</section>
+
   <section id="grid" class="grid" hidden></section>
   <nav id="pager" class="pager" hidden>
     <button class="btn" id="prev">← Previous</button>
@@ -635,40 +671,83 @@ header {
     render();
   }
 
-  function render() {
+ 
+function render() {
     const grid = byId('grid');
+    const rail = byId('rail');
     const status = byId('status');
     const pager = byId('pager');
     const count = byId('articleCount');
 
-    const total = STATE.filtered.length;
+    const rows = STATE.filtered;
+    const total = rows.length;
+
     if (!total) {
-      grid.hidden = true; pager.hidden = true; count.hidden = true;
-      status.hidden = false; status.textContent = 'No articles found.';
+      rail.hidden = true;
+      grid.hidden = true;
+      pager.hidden = true;
+      count.hidden = true;
+      status.hidden = false;
+      status.textContent = 'No articles found.';
       return;
     }
 
+    // We have content
     status.hidden = true;
+    count.hidden = false;
+
+    // --- Build the BBC rail from the first three items (already sorted by date_desc) ---
+    const left = rows[1] || null;    // 2nd newest
+    const center = rows[0] || null;  // newest
+    const right = rows[2] || null;   // 3rd newest
+
+    rail.hidden = false;
+    rail.querySelector('.rail-left').innerHTML = '';
+    rail.querySelector('.rail-center').innerHTML = '';
+    rail.querySelector('.rail-right').innerHTML = '';
+
+    if (left)   rail.querySelector('.rail-left').appendChild(card(left, 'side'));
+    if (center) rail.querySelector('.rail-center').appendChild(card(center, 'lead'));
+    if (right)  rail.querySelector('.rail-right').appendChild(card(right, 'side'));
+
+    // --- Render the rest into the existing grid with pagination ---
+    const rest = rows.slice(3);
+    grid.innerHTML = '';
+
+    if (rest.length === 0) {
+      grid.hidden = true;
+      pager.hidden = true;
+      // Count text reflects just the top stories
+      count.textContent = `Showing ${Math.min(3, total)} of ${total} articles`;
+      return;
+    }
+
     grid.hidden = false;
     pager.hidden = false;
-    count.hidden = false;
-    grid.innerHTML = '';
 
     const start = (STATE.page - 1) * STATE.pageSize;
     const end = start + STATE.pageSize;
-    const rows = STATE.filtered.slice(start, end);
-    rows.forEach(r => grid.appendChild(card(r)));
+    const pageRows = rest.slice(start, end);
 
-    const totalPages = Math.max(1, Math.ceil(total / STATE.pageSize));
-    byId('pageInfo').textContent = `Page ${STATE.page} / ${totalPages}`;
+    pageRows.forEach(r => grid.appendChild(card(r)));
+
+    const totalPages = Math.max(1, Math.ceil(rest.length / STATE.pageSize));
+    byId('pageInfo').textContent = `Page ${Math.min(STATE.page, totalPages)} / ${totalPages}`;
     byId('prev').disabled = STATE.page <= 1;
     byId('next').disabled = STATE.page >= totalPages;
 
-    count.textContent = `Showing ${start + 1}–${Math.min(end, total)} of ${total} articles`;
+    // Count shows overall position (top 3 + current page slice)
+    const shownFrom = 3 + start + 1;
+    const shownTo = 3 + start + pageRows.length;
+    count.textContent = `Showing ${Math.min(shownFrom, total)}–${Math.min(shownTo, total)} of ${total} articles`;
   }
 
-  function card(row) {
-    const c = el('article', 'card');
+  // Keep your existing prev/next listeners; they already call render().
+
+
+  
+function card(row, variant) {
+    const c = el('article', 'card' + (variant ? ` card--${variant}` : ''));
     const img = el('img', 'thumb');
     img.loading = 'lazy';
     img.alt = row.Title || 'thumbnail';
@@ -683,7 +762,7 @@ header {
     const h = el('h2', 'title'); h.textContent = row.Title || '(Untitled)';
     const meta = el('div', 'meta');
 
-    const chip = el('span', 'chip'); 
+    const chip = el('span', 'chip');
     chip.textContent = row.SourceDisplay || 'Unknown';
     meta.append(chip);
 
@@ -707,6 +786,7 @@ header {
 
     return c;
   }
+
 
   byId('source').addEventListener('change', e => { STATE.source = e.target.value; setHeaderLogo(); applyFilters(); });
   byId('line').addEventListener('change', e => { STATE.line = e.target.value; setHeaderLogo(); applyFilters(); });
