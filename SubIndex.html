@@ -28,6 +28,71 @@
     
     * { box-sizing: border-box; }
     
+    .header-flex {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 24px;
+      padding: 16px 24px;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .header-left .logo {
+      width: 120px;
+      aspect-ratio: 16/9;
+    }
+
+    .header-left h1 {
+      font-size: 24px;
+      margin: 0;
+    }
+
+    .header-right {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap; /* For smaller screens */
+    }
+
+    .header-right .control select,
+    .header-right .control input {
+      padding: 10px 12px;
+      font-size: 15px;
+      border-radius: 8px;
+    }
+    
+.header-inline {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 24px;
+  padding: 16px 24px;
+  flex-wrap: wrap; /* Allows wrapping on smaller screens */
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.header-right {
+  display: flex;
+  gap: 12px;
+}
+
+.header-right select,
+.header-right input {
+  padding: 10px 12px;
+  font-size: 15px;
+  border-radius: 8px;
+}
+
+
     html, body { 
       height: 100%; 
       margin: 0; 
@@ -39,7 +104,7 @@
       -moz-osx-font-smoothing: grayscale;
       font-size: 16px;
     }
-
+    
     .wrap { 
       max-width: var(--max); 
       margin: 0 auto; 
@@ -252,27 +317,29 @@
 </head>
 <body>
 
+
+
 <header>
-  <div class="wrap">
-    <div class="brand-vertical">
-      <div class="logo" title="Brand"><img id="brandImg" alt="Brand"></div>
+  <div class="wrap header-inline">
+    <div class="header-left">
+      <div class="logo"><img id="brandImg" alt="Brand"></div>
       <h1>Competitor News</h1>
     </div>
-    <div class="controls">
-      <div class="control"><select id="source"><option value="">All Companies</option></select></div>
-      <div class="control"><select id="line"><option value="">All Product Lines</option><option value="CRP">CRP</option><option value="Bars">Bars</option><option value="Geotec">Geotec</option></select></div>
-      <div class="control"><input type="text" id="search" placeholder="🔍 Search keyword..." /></div>
-      <div class="control">
-        <select id="sort">
-          <option value="date_desc">📅 Newest First</option>
-          <option value="date_asc">📅 Oldest First</option>
-          <option value="title_asc">🔤 Title A–Z</option>
-          <option value="title_desc">🔤 Title Z–A</option>
-        </select>
-      </div>
+    <div class="header-right">
+      <select id="source"><option value="">All Companies</option></select>
+      <select id="line"><option value="">All Product Lines</option><option value="CRP">CRP</option><option value="Bars">Bars</option><option value="Geotec">Geotec</option></select>
+      <input type="text" id="search" placeholder="🔍 Search keyword...">
+      <select id="sort">
+        <option value="date_desc">📅 Newest First</option>
+        <option value="date_asc">📅 Oldest First</option>
+        <option value="title_asc">🔤 Title A–Z</option>
+        <option value="title_desc">🔤 Title Z–A</option>
+      </select>
     </div>
   </div>
 </header>
+
+
 
 <main class="wrap">
   <div id="status" class="empty">Loading articles…</div>
