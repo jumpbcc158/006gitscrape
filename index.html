@@ -11,7 +11,7 @@
       --ink: #0f172a;
       --ink-light: #334155;
       --ink-lighter: #64748b;
-      --brand: #04cc9e;
+      --brand: #00a99d;
       --brand-dark: #008a81;
       --brand-light: #e6f7f6;
       --border: #e2e8f0;
@@ -26,11 +26,6 @@
       --radius-lg: 16px;
     }
     
-    select {
-        display: none !important;
-      }
-  
-
     * { box-sizing: border-box; }
     
     html, body { 
@@ -45,78 +40,59 @@
       font-size: 16px;
     }
 
-    input[type="text"] {
-      display: none !important;
-    }
-
     .wrap { 
       max-width: var(--max); 
       margin: 0 auto; 
       padding: 32px 24px;
     }
 
+    header { 
+      background: linear-gradient(135deg, var(--brand) 0%, #1cc2b5 100%);
+      color: #fff;
+      box-shadow: var(--shadow-md);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      backdrop-filter: blur(8px);
+    }
     
-header {
-  background: #04cc9e; /* Solid Stribe green */
-  color: #fff;
-  box-shadow: var(--shadow-md);
-  position: sticky;
-  top: 0;
-  z-index: 100;
-  min-height: 72px; /* Adjust for your preferred bar height */
-  display: flex;
-  align-items: center;      /* Vertically center everything in the bar */
-}
+    header .wrap { 
+      padding: 40px 24px 32px;
+    }
 
-header .wrap {
-  width: 100%;
-  display: flex;
-  justify-content: flex-start;  /* Center content horizontally */
-  align-items: center;      /* Vertically center content */
-  padding: 0;               /* Remove extra padding */
-}
-
-.brand-vertical {
-  display: flex;
-  flex-direction: row;
-  align-items: center;      /* Vertically center logo and text */
-  gap: 20px;                /* Space between logo and text */
-}
-
-.logo {
-  width: 56px;              /* Bigger logo */
-  height: 56px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: #fff;
-  border-radius: 8px;
-  margin: 0;
-  padding: 0;
-  box-shadow: none;
-  border: none;
-}
-
-.logo img {
-  width: 90%;
-  height: 90%;
-  object-fit: contain;
-  padding: 0;
-}
-
-.brand-vertical h1 {
-  font-size: 2em;
-  font-weight: 700;
-  margin: 0;
-  padding: 0;
-  color: #fff;
-  background: none;
-  line-height: 1;
-  display: flex;
-  align-items: center; /* Vertically center text with logo */
-}
-
+    .brand-vertical { 
+      display: flex; 
+      flex-direction: column; 
+      align-items: center; 
+      gap: 24px; 
+      text-align: center;
+      margin-bottom: 32px;
+    }
     
+    .logo { 
+      width: 240px; 
+      aspect-ratio: 16/9; 
+      border-radius: var(--radius-lg);
+      background: #fff; 
+      display: grid; 
+      place-items: center; 
+      overflow: hidden; 
+      box-shadow: var(--shadow-lg);
+      border: 3px solid rgba(255, 255, 255, 0.2);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    
+    .logo:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-xl);
+    }
+    
+    .logo img { 
+      width: 100%; 
+      height: 100%; 
+      object-fit: contain;
+      padding: 12px;
+    }
 
     h1 { 
       margin: 0; 
