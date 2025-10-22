@@ -186,7 +186,6 @@ header .wrap {
       padding: 14px 28px; background: var(--card); border-radius: var(--radius);
       box-shadow: var(--shadow-sm); border: 1px solid var(--border);
     }
-    
 
     .grid { 
       display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
@@ -263,11 +262,6 @@ header .wrap {
       .link { width: 100%; }
     }
     
-/* --- UNHIDE the dropdowns + search (your CSS currently hides them globally) --- */
-header .controls select,
-header .controls input[type="text"] {
-  display: inline-block !important;
-}
 
 /* --- Put title + filters on the SAME LINE --- */
 header .wrap {
@@ -331,55 +325,14 @@ header {
   min-height: 56px !important;            /* lower green bar height */
 }
 
+
 header .controls select,
 header .controls input[type="text"] {
   display: none !important;
 }
 
-/* === BBC-style rail (Left • Center/Lead • Right) === */
 
-/* BBC-style rail with stacked side stories */
-.bbc-rail {
-  display: grid;
-  grid-template-columns: 1fr minmax(0, 1.6fr) 1fr; /* center is wider */
-  gap: 24px;
-  margin-top: 24px;
-}
 
-/* Left and right columns stack their cards */
-.rail-left,
-.rail-right {
-  display: flex;
-  flex-direction: column;
-  gap: 16px; /* space between stacked stories */
-}
-
-/* Lead story in center */
-.card--lead .title {
-  font-size: 26px;
-  line-height: 1.3;
-}
-.card--lead .summary {
-  -webkit-line-clamp: 4;
-}
-
-/* Side stories smaller */
-.card--side .title {
-  font-size: 18px;
-}
-.card--side .summary {
-  -webkit-line-clamp: 2;
-}
-
-/* Responsive: stack everything on small screens */
-@media (max-width: 1100px) {
-  .bbc-rail {
-    grid-template-columns: 1fr;
-  }
-  .rail-center { order: 1; }
-  .rail-left { order: 2; }
-  .rail-right { order: 3; }
-}
 
   </style>
 </head>
@@ -410,12 +363,6 @@ header .controls input[type="text"] {
 <main class="wrap">
   <div id="status" class="empty">Loading articles…</div>
   <div class="article-count" id="articleCount" hidden></div>
-  <section id="rail" class="bbc-rail" hidden>
-  <div class="rail-left"></div>
-  <div class="rail-center"></div>
-  <div class="rail-right"></div>
-</section>
-
   <section id="grid" class="grid" hidden></section>
   <nav id="pager" class="pager" hidden>
     <button class="btn" id="prev">← Previous</button>
@@ -691,16 +638,40 @@ header .controls input[type="text"] {
     render();
   }
 
- 
+  function render() {
+    const grid = byId('grid');
+    const status = byId('status');
+    const pager = byId('pager');
+    const count = byId('articleCount');
 
+    const total = STATE.filtered.length;
+    if (!total) {
+      grid.hidden = true; pager.hidden = true; count.hidden = true;
+      status.hidden = false; status.textContent = 'No articles found.';
+      return;
+    }
 
+    status.hidden = true;
+    grid.hidden = false;
+    pager.hidden = false;
+    count.hidden = false;
+    grid.innerHTML = '';
 
-  // Keep your existing prev/next listeners; they already call render().
+    const start = (STATE.page - 1) * STATE.pageSize;
+    const end = start + STATE.pageSize;
+    const rows = STATE.filtered.slice(start, end);
+    rows.forEach(r => grid.appendChild(card(r)));
 
+    const totalPages = Math.max(1, Math.ceil(total / STATE.pageSize));
+    byId('pageInfo').textContent = `Page ${STATE.page} / ${totalPages}`;
+    byId('prev').disabled = STATE.page <= 1;
+    byId('next').disabled = STATE.page >= totalPages;
 
-  
-function card(row, variant) {
-    const c = el('article', 'card' + (variant ? ` card--${variant}` : ''));
+    count.textContent = `Showing ${start + 1}–${Math.min(end, total)} of ${total} articles`;
+  }
+
+  function card(row) {
+    const c = el('article', 'card');
     const img = el('img', 'thumb');
     img.loading = 'lazy';
     img.alt = row.Title || 'thumbnail';
@@ -715,7 +686,7 @@ function card(row, variant) {
     const h = el('h2', 'title'); h.textContent = row.Title || '(Untitled)';
     const meta = el('div', 'meta');
 
-    const chip = el('span', 'chip');
+    const chip = el('span', 'chip'); 
     chip.textContent = row.SourceDisplay || 'Unknown';
     meta.append(chip);
 
@@ -739,7 +710,6 @@ function card(row, variant) {
 
     return c;
   }
-
 
   byId('source').addEventListener('change', e => { STATE.source = e.target.value; setHeaderLogo(); applyFilters(); });
   byId('line').addEventListener('change', e => { STATE.line = e.target.value; setHeaderLogo(); applyFilters(); });
