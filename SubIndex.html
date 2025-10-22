@@ -358,6 +358,108 @@ header {
   .rail-right { order: 3; }
 }
 
+/* BBC-style rail with stacked side stories */
+.bbc-rail {
+  display: grid;
+  grid-template-columns: 1fr minmax(0, 1.6fr) 1fr; /* center is wider */
+  gap: 24px;
+  margin-top: 24px;
+}
+
+/* Left and right columns stack their cards */
+.rail-left,
+.rail-right {
+  display: flex;
+  flex-direction: column;
+  gap: 16px; /* space between stacked stories */
+}
+
+/* Lead story in center */
+.card--lead .title {
+  font-size: 26px;
+  line-height: 1.3;
+}
+.card--lead .summary {
+  -webkit-line-clamp: 4;
+}
+
+/* Side stories smaller */
+.card--side .title {
+  font-size: 18px;
+}
+.card--side .summary {
+  -webkit-line-clamp: 2;
+}
+
+/* Responsive: stack everything on small screens */
+@media (max-width: 1100px) {
+  .bbc-rail {
+    grid-template-columns: 1fr;
+  }
+  .rail-center { order: 1; }
+  .rail-left { order: 2; }
+  .rail-right { order: 3; }
+}
+
+
+/* === Clean BBC rail layout (center hero, stacked sides) === */
+.bbc-rail {
+  display: grid;
+  grid-template-columns: 1fr minmax(0, 2fr) 1fr; /* center is wider */
+  gap: 20px;
+  margin-top: 20px;
+  align-items: stretch;
+}
+
+/* Side columns: use grid so both cards stretch evenly */
+.rail-left,
+.rail-right {
+  display: grid;
+  grid-auto-rows: 1fr;  /* each side card fills available row height */
+  gap: 16px;
+}
+
+/* Make card layout robust and equal-height */
+.card {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+.card .thumb {
+  width: 100%;
+  display: block;
+  background: #eef2f7;
+  object-fit: cover;
+}
+
+/* Hero (center) visuals */
+.card--lead .thumb { height: 320px; }
+.card--lead .title { font-size: 24px; line-height: 1.3; }
+.card--lead .summary { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+
+/* Side (left/right) visuals: compact and clean */
+.card--side .thumb { height: 140px; }
+.card--side .title { font-size: 17px; line-height: 1.35; }
+.card--side .summary { display: none; } /* keep side cards tight */
+.card--side .actions { display: none; } /* hide buttons on side cards to reduce noise */
+.card--side .meta { padding-bottom: 10px; }
+
+/* Optional: tone down chip density on side cards */
+.card--side .meta .chip.line { display: none; }
+
+/* Grid for the rest: keep your existing grid but reduce top margin */
+.grid { margin-top: 20px; }
+
+/* Responsive: collapse to one column on smaller screens */
+@media (max-width: 1100px) {
+  .bbc-rail { grid-template-columns: 1fr; }
+  .rail-center { order: 1; }
+  .rail-left   { order: 2; }
+  .rail-right  { order: 3; }
+  .card--lead .thumb { height: 220px; }
+}
+
+
   </style>
 </head>
 <body>
@@ -669,120 +771,130 @@ header {
   }
 
  
+
 function render() {
-    const grid = byId('grid');
-    const rail = byId('rail');
-    const status = byId('status');
-    const pager = byId('pager');
-    const count = byId('articleCount');
+  const grid = byId('grid');
+  const rail = byId('rail');
+  const status = byId('status');
+  const pager = byId('pager');
+  const count = byId('articleCount');
 
-    const rows = STATE.filtered;
-    const total = rows.length;
+  const rows = STATE.filtered || [];
+  const total = rows.length;
 
-    if (!total) {
-      rail.hidden = true;
-      grid.hidden = true;
-      pager.hidden = true;
-      count.hidden = true;
-      status.hidden = false;
-      status.textContent = 'No articles found.';
-      return;
-    }
-
-    // We have content
-    status.hidden = true;
-    count.hidden = false;
-
-    // --- Build the BBC rail from the first three items (already sorted by date_desc) ---
-    const left = rows[1] || null;    // 2nd newest
-    const center = rows[0] || null;  // newest
-    const right = rows[2] || null;   // 3rd newest
-
-    rail.hidden = false;
-    rail.querySelector('.rail-left').innerHTML = '';
-    rail.querySelector('.rail-center').innerHTML = '';
-    rail.querySelector('.rail-right').innerHTML = '';
-
-    if (left)   rail.querySelector('.rail-left').appendChild(card(left, 'side'));
-    if (center) rail.querySelector('.rail-center').appendChild(card(center, 'lead'));
-    if (right)  rail.querySelector('.rail-right').appendChild(card(right, 'side'));
-
-    // --- Render the rest into the existing grid with pagination ---
-    const rest = rows.slice(3);
-    grid.innerHTML = '';
-
-    if (rest.length === 0) {
-      grid.hidden = true;
-      pager.hidden = true;
-      // Count text reflects just the top stories
-      count.textContent = `Showing ${Math.min(3, total)} of ${total} articles`;
-      return;
-    }
-
-    grid.hidden = false;
-    pager.hidden = false;
-
-    const start = (STATE.page - 1) * STATE.pageSize;
-    const end = start + STATE.pageSize;
-    const pageRows = rest.slice(start, end);
-
-    pageRows.forEach(r => grid.appendChild(card(r)));
-
-    const totalPages = Math.max(1, Math.ceil(rest.length / STATE.pageSize));
-    byId('pageInfo').textContent = `Page ${Math.min(STATE.page, totalPages)} / ${totalPages}`;
-    byId('prev').disabled = STATE.page <= 1;
-    byId('next').disabled = STATE.page >= totalPages;
-
-    // Count shows overall position (top 3 + current page slice)
-    const shownFrom = 3 + start + 1;
-    const shownTo = 3 + start + pageRows.length;
-    count.textContent = `Showing ${Math.min(shownFrom, total)}–${Math.min(shownTo, total)} of ${total} articles`;
+  // No results
+  if (!total) {
+    rail.hidden = true;
+    grid.hidden = true;
+    pager.hidden = true;
+    count.hidden = true;
+    status.hidden = false;
+    status.textContent = 'No articles found.';
+    return;
   }
+
+  status.hidden = true;
+  count.hidden = false;
+
+  // Prepare top 5: center (1), left (2), right (2)
+  const center = rows[0] || null;
+  const leftStories  = rows.slice(1, 3);
+  const rightStories = rows.slice(3, 5);
+
+  // Render rail
+  rail.hidden = false;
+  const railLeft   = rail.querySelector('.rail-left');
+  const railCenter = rail.querySelector('.rail-center');
+  const railRight  = rail.querySelector('.rail-right');
+
+  railLeft.innerHTML = '';
+  railCenter.innerHTML = '';
+  railRight.innerHTML = '';
+
+  if (center)    railCenter.appendChild(card(center, 'lead'));
+  leftStories.forEach(s  => railLeft.appendChild(card(s, 'side')));
+  rightStories.forEach(s => railRight.appendChild(card(s, 'side')));
+
+  // Render rest in grid with pagination
+  const rest = rows.slice(5);
+  grid.innerHTML = '';
+
+  if (rest.length === 0) {
+    grid.hidden = true;
+    pager.hidden = true;
+    count.textContent = `Showing ${Math.min(5, total)} of ${total} articles`;
+    return;
+  }
+
+  grid.hidden = false;
+  pager.hidden = false;
+
+  const totalPages = Math.max(1, Math.ceil(rest.length / STATE.pageSize));
+  if (STATE.page > totalPages) STATE.page = totalPages;
+
+  const start = (STATE.page - 1) * STATE.pageSize;
+  const end = start + STATE.pageSize;
+  const pageRows = rest.slice(start, end);
+
+  pageRows.forEach(r => grid.appendChild(card(r)));
+
+  byId('pageInfo').textContent = `Page ${STATE.page} / ${totalPages}`;
+  byId('prev').disabled = STATE.page <= 1;
+  byId('next').disabled = STATE.page >= totalPages;
+
+  const shownFrom = 5 + start + 1;
+  const shownTo   = 5 + start + pageRows.length;
+  count.textContent = `Showing ${Math.min(shownFrom, total)}–${Math.min(shownTo, total)} of ${total} articles`;
+}
+
 
   // Keep your existing prev/next listeners; they already call render().
 
 
   
 function card(row, variant) {
-    const c = el('article', 'card' + (variant ? ` card--${variant}` : ''));
-    const img = el('img', 'thumb');
-    img.loading = 'lazy';
-    img.alt = row.Title || 'thumbnail';
-    img.src = row.Image || 'data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22400%22 height=%22225%22><rect width=%22400%22 height=%22225%22 fill=%22%23f1f5f9%22/><text x=%2250%25%22 y=%2250%25%22 dominant-baseline=%22middle%22 text-anchor=%22middle%22 fill=%2394a3b8%22 font-size=%2218%22 font-family=%22system-ui%22 font-weight=%22600%22>No image available</text></svg>';
-    img.onerror = () => {
-      img.onerror = null;
-      img.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="400" height="225"><rect width="400" height="225" fill="%23f1f5f9"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="%2394a3b8" font-size="18" font-family="system-ui" font-weight="600">No image available</text></svg>';
-    };
-    c.appendChild(img);
+  const c = el('article', 'card' + (variant ? ` card--${variant}` : ''));
+  const img = el('img', 'thumb');
+  img.loading = 'lazy';
+  img.alt = row.Title || 'thumbnail';
+  img.src = row.Image || 'data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22400%22 height=%22225%22><rect width=%22400%22 height=%22225%22 fill=%22%23f1f5f9%22/><text x=%2250%25%22 y=%2250%25%22 dominant-baseline=%22middle%22 text-anchor=%22middle%22 fill=%2394a3b8%22 font-size=%2218%22 font-family=%22system-ui%22 font-weight=%22600%22>No image available</text></svg>';
+  img.onerror = () => {
+    img.onerror = null;
+    img.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="400" height="225"><rect width="400" height="225" fill="%23f1f5f9"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="%2394a3b8" font-size="18" font-family="system-ui" font-weight="600">No image available</text></svg>';
+  };
+  c.appendChild(img);
 
-    const p = el('div', 'pad');
-    const h = el('h2', 'title'); h.textContent = row.Title || '(Untitled)';
-    const meta = el('div', 'meta');
+  const p = el('div', 'pad');
+  const h = el('h2', 'title'); h.textContent = row.Title || '(Untitled)';
+  const meta = el('div', 'meta');
 
-    const chip = el('span', 'chip');
-    chip.textContent = row.SourceDisplay || 'Unknown';
-    meta.append(chip);
+  const chip = el('span', 'chip');
+  chip.textContent = row.SourceDisplay || 'Unknown';
+  meta.append(chip);
 
-    if (row.Lines && row.Lines.length) {
-      row.Lines.forEach(L => { const ch = el('span', 'chip line'); ch.textContent = L; meta.append('•', ch); });
-    }
-
-    const date = el('span');
-    date.textContent = row.DateISO || '';
-    meta.append('•', date);
-
-    const sum = el('p', 'summary'); sum.textContent = row.Summary || '';
-    p.append(h, meta, sum);
-    c.appendChild(p);
-
-    const actions = el('div', 'actions');
-    const a1 = el('a', 'link primary'); a1.href = row.Link || '#'; a1.target = '_blank'; a1.rel = 'noopener'; a1.textContent = 'Read Article';
-    const a2 = el('a', 'link'); a2.href = `https://www.google.com/search?q=${encodeURIComponent((row.Title || '') + ' ' + (row.SourceDisplay || ''))}`; a2.target = '_blank'; a2.rel = 'noopener'; a2.textContent = 'Search More';
-    actions.append(a1, a2);
-    c.appendChild(actions);
-
-    return c;
+  if (row.Lines && row.Lines.length) {
+    row.Lines.forEach(L => {
+      const ch = el('span', 'chip line'); ch.textContent = L; meta.append('•', ch);
+    });
   }
+
+  const date = el('span');
+  date.textContent = row.DateISO || '';
+  meta.append('•', date);
+
+  const sum = el('p', 'summary'); sum.textContent = row.Summary || '';
+  p.append(h, meta, sum);
+  c.appendChild(p);
+
+  const actions = el('div', 'actions');
+  const a1 = el('a', 'link primary'); a1.href = row.Link || '#'; a1.target = '_blank'; a1.rel = 'noopener'; a1.textContent = 'Read Article';
+  const a2 = el('a', 'link'); a2.href = `https://www.google.com/search?q=${encodeURIComponent((row.Title || '') + ' ' + (row.SourceDisplay || ''))}`; a2.target = '_blank'; a2.rel = 'noopener'; a2.textContent = 'Search More';
+  actions.append(a1, a2);
+  c.appendChild(actions);
+
+  return c;
+}
+
 
 
   byId('source').addEventListener('change', e => { STATE.source = e.target.value; setHeaderLogo(); applyFilters(); });
