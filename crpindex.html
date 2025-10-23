@@ -141,27 +141,7 @@ header .wrap {
   width: auto; /* No full width */
 }
 
-    
-    .control:nth-child(1) select {
-      background: linear-gradient(135deg, #fff 0%, #f0f9ff 100%);
-      border-color: rgba(59, 130, 246, 0.3);
-    }
-    
-    .control:nth-child(2) select {
-      background: linear-gradient(135deg, #fff 0%, #f0fdf4 100%);
-      border-color: rgba(34, 197, 94, 0.3);
-    }
-    
-    .control:nth-child(3) input {
-      background: linear-gradient(135deg, #fff 0%, #fefce8 100%);
-      border-color: rgba(234, 179, 8, 0.3);
-    }
-    
-    .control:nth-child(4) select {
-      background: linear-gradient(135deg, #fff 0%, #fdf4ff 100%);
-      border-color: rgba(168, 85, 247, 0.3);
-    }
-    
+
     .control select:hover,
     .control input:hover {
       border-color: rgba(255, 255, 255, 0.6);
@@ -616,11 +596,89 @@ header {
 }
 
 
+/* Upload button styling */
+
+
+
+
+/* Position it on the far right */
+header .wrap {
+  justify-content: space-between;
+}
+
+header .wrap .btn-upload {
+  margin-left: auto; /* Push to far right */
+}
+
+.btn-upload:active {
+  transform: translateY(0);
+  box-shadow: var(--shadow-sm);
+}
+
+
+header .wrap {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: nowrap; /* Prevent wrapping */
+  overflow-x: auto;  /* Allow horizontal scroll if too tight */
+}
+
+header .controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: nowrap; /* Keep all controls in one line */
+}
+
+header .controls select,
+header .controls input[type="text"],
+header .controls button {
+  background: #fff; /* Pure white */
+  border: 1px solid #ccc;
+  color: #0f172a;
+  padding: 6px 10px;
+  font-size: 14px;
+  border-radius: 6px;
+  flex-shrink: 0; /* Prevent shrinking too much */
+}
+
+
+
+.btn-upload {
+  background-color: #374151 !important; /* Gray idle */
+  color: #fff !important;
+  border: none;
+  border-radius: 6px;
+  padding: 10px 16px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+  transition: all 0.3s ease;
+}
+
+.btn-upload:hover {
+  background-color: #0048b6  !important; /* Brand green hover */
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+
+
+
   </style>
+
 </head>
 <body>
 
 <header>
+    
+
+
   <div class="wrap">
     <div class="brand-vertical">
       <div class="logo" title="Brand"><img id="brandImg" alt="Brand"></div>
@@ -638,7 +696,22 @@ header {
           <option value="title_desc">🔤 Title Z–A</option>
         </select>
       </div>
+       
+        
+        
+        <button class="btn-upload"
+        onclick="window.open('https://dextranet.sharepoint.com/sites/CompetitorsWatch/Shared%20Documents/Forms/AllItems.aspx?FolderCTID=0x012000B87C45CAE72D364BAB34FCA0F1BAD5A0&id=%2Fsites%2FCompetitorsWatch%2FShared%20Documents%2F01%2E%20CRP%2FCRP%20Competitor%20Files', '_blank')">
+        📂 Drop Competitor Files
+        </button>
+
+
+
     </div>
+    
+    
+   
+
+
   </div>
 </header>
 
