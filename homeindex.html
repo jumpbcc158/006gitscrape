@@ -141,27 +141,7 @@ header .wrap {
   width: auto; /* No full width */
 }
 
-    
-    .control:nth-child(1) select {
-      background: linear-gradient(135deg, #fff 0%, #f0f9ff 100%);
-      border-color: rgba(59, 130, 246, 0.3);
-    }
-    
-    .control:nth-child(2) select {
-      background: linear-gradient(135deg, #fff 0%, #f0fdf4 100%);
-      border-color: rgba(34, 197, 94, 0.3);
-    }
-    
-    .control:nth-child(3) input {
-      background: linear-gradient(135deg, #fff 0%, #fefce8 100%);
-      border-color: rgba(234, 179, 8, 0.3);
-    }
-    
-    .control:nth-child(4) select {
-      background: linear-gradient(135deg, #fff 0%, #fdf4ff 100%);
-      border-color: rgba(168, 85, 247, 0.3);
-    }
-    
+
     .control select:hover,
     .control input:hover {
       border-color: rgba(255, 255, 255, 0.6);
@@ -616,19 +596,99 @@ header {
 }
 
 
+/* Upload button styling */
+
+
+
+
+/* Position it on the far right */
+header .wrap {
+  justify-content: space-between;
+}
+
+header .wrap .btn-upload {
+  margin-left: auto; /* Push to far right */
+}
+
+.btn-upload:active {
+  transform: translateY(0);
+  box-shadow: var(--shadow-sm);
+}
+
+
+header .wrap {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: nowrap; /* Prevent wrapping */
+  overflow-x: auto;  /* Allow horizontal scroll if too tight */
+}
+
+header .controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: nowrap; /* Keep all controls in one line */
+}
+
+header .controls select,
+header .controls input[type="text"],
+header .controls button {
+  background: #fff; /* Pure white */
+  border: 1px solid #ccc;
+  color: #0f172a;
+  padding: 6px 10px;
+  font-size: 14px;
+  border-radius: 6px;
+  flex-shrink: 0; /* Prevent shrinking too much */
+}
+
+
+
+.btn-upload {
+  background-color: #374151 !important; /* Gray idle */
+  color: #fff !important;
+  border: none;
+  border-radius: 6px;
+  padding: 10px 16px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+  transition: all 0.3s ease;
+}
+
+.btn-upload:hover {
+  background-color: #0048b6  !important; /* Brand green hover */
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+
+
+
+
   </style>
+
 </head>
 <body>
 
 <header>
+    
+
+
   <div class="wrap">
     <div class="brand-vertical">
       <div class="logo" title="Brand"><img id="brandImg" alt="Brand"></div>
       <h1>Competitor News</h1>
     </div>
     <div class="controls">
-      <div class="control"><select id="source"><option value="">All Companies</option></select></div>
+      
       <div class="control"><select id="line"><option value="">All Product Lines</option><option value="CRP">CRP</option><option value="Bars">Bars</option><option value="Geotec">Geotec</option></select></div>
+      <div class="control"><select id="source"><option value="">All Companies</option></select></div>
       <div class="control"><input type="text" id="search" placeholder="🔍 Search keyword..." /></div>
       <div class="control">
         <select id="sort">
@@ -638,7 +698,16 @@ header {
           <option value="title_desc">🔤 Title Z–A</option>
         </select>
       </div>
+       
+        
+
+
     </div>
+    
+    
+   
+
+
   </div>
 </header>
 
@@ -745,8 +814,8 @@ header {
 
   /* --- Display name mapping (what the user sees) --- */
   const DISPLAY_NAME = {
-    "moment": "Moment",
-    "ancon": "Ancon",
+    "moment": "Moment (Leviat)",
+    "ancon": "Ancon (Leviat)",
     "nvent lenton": "nVent LENTON",
     "firep minova": "FiReP Minova",
     "dywidag": "DYWIDAG",
@@ -1000,7 +1069,7 @@ function render() {
 
   const shownFrom = 5 + start + 1;
   const shownTo   = 5 + start + pageRows.length;
-  count.textContent = `Showing ${Math.min(shownFrom, total)}–${Math.min(shownTo, total)} of ${total} articles`;
+  count.textContent = `Showing ${Math.min(shownTo, total)} of ${total} articles`;
 }
 
 
@@ -1051,16 +1120,89 @@ function card(row, variant) {
   return c;
 }
 
+function filterCompaniesByLine(selectedLine) {
+  const sel = byId('source');
+  sel.innerHTML = ''; // Clear existing options
+
+  // Always include "All Companies"
+  const defaultOpt = el('option');
+  defaultOpt.value = '';
+  defaultOpt.textContent = 'All Companies';
+  sel.appendChild(defaultOpt);
+
+  // If no line selected, show all companies
+  if (!selectedLine) {
+    const uniqCanon = [...new Set(STATE.raw.map(r => r.SourceCanon).filter(Boolean))]
+      .sort((a,b) => displayFor(a).localeCompare(displayFor(b)));
+    uniqCanon.forEach(canon => {
+      const o = el('option');
+      o.value = canon;
+      o.textContent = displayFor(canon);
+      sel.appendChild(o);
+    });
+    return;
+  }
+
+  // Filter companies that have this line in LINE_MAP
+  const uniqCanon = [...new Set(STATE.raw.map(r => r.SourceCanon).filter(Boolean))]
+    .filter(canon => (LINE_MAP[canon] || []).includes(selectedLine))
+    .sort((a,b) => displayFor(a).localeCompare(displayFor(b)));
+
+  uniqCanon.forEach(canon => {
+    const o = el('option');
+    o.value = canon;
+    o.textContent = displayFor(canon);
+    sel.appendChild(o);
+  });
+}
 
 
-  byId('source').addEventListener('change', e => { STATE.source = e.target.value; setHeaderLogo(); applyFilters(); });
-  byId('line').addEventListener('change', e => { STATE.line = e.target.value; setHeaderLogo(); applyFilters(); });
-  byId('sort').addEventListener('change', e => { STATE.sort = e.target.value; applyFilters(); });
-  byId('search').addEventListener('input', e => { STATE.search = e.target.value; applyFilters(); });
-  byId('prev').addEventListener('click', () => { STATE.page = Math.max(1, STATE.page - 1); render(); window.scrollTo({ top: 0, behavior: 'smooth' }); });
-  byId('next').addEventListener('click', () => { const totalPages = Math.max(1, Math.ceil(STATE.filtered.length / STATE.pageSize)); STATE.page = Math.min(totalPages, STATE.page + 1); render(); window.scrollTo({ top: 0, behavior: 'smooth' }); });
 
-  window.addEventListener('scroll', () => { const btn = byId('backToTop'); btn.style.display = window.scrollY > 300 ? 'block' : 'none'; });
+const allowedLines = ["CRP", "Bars", "Geotec"];
+
+byId('source').addEventListener('change', e => {
+  STATE.source = e.target.value;
+  setHeaderLogo();
+  applyFilters();
+});
+
+
+byId('line').addEventListener('change', e => {
+  STATE.line = e.target.value;
+  filterCompaniesByLine(STATE.line); // Rebuild company dropdown
+  setHeaderLogo();
+  applyFilters();
+});
+
+
+byId('sort').addEventListener('change', e => {
+  STATE.sort = e.target.value;
+  applyFilters();
+});
+
+byId('search').addEventListener('input', e => {
+  STATE.search = e.target.value;
+  applyFilters();
+});
+
+byId('prev').addEventListener('click', () => {
+  STATE.page = Math.max(1, STATE.page - 1);
+  render();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+});
+
+byId('next').addEventListener('click', () => {
+  const totalPages = Math.max(1, Math.ceil(STATE.filtered.length / STATE.pageSize));
+  STATE.page = Math.min(totalPages, STATE.page + 1);
+  render();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+});
+
+window.addEventListener('scroll', () => {
+  const btn = byId('backToTop');
+  btn.style.display = window.scrollY > 300 ? 'block' : 'none';
+});
+
 
   setHeaderLogo();
   loadCSV();
