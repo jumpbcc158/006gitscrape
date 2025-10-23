@@ -669,6 +669,10 @@ header .controls button {
 }
 
 
+#line {
+  display: none !important;
+}
+
 
   </style>
 
@@ -1074,7 +1078,7 @@ function render() {
 
   const shownFrom = 5 + start + 1;
   const shownTo   = 5 + start + pageRows.length;
-  count.textContent = `Showing ${Math.min(shownFrom, total)}–${Math.min(shownTo, total)} of ${total} articles`;
+  count.textContent = `Showing ${Math.min(shownTo, total)} of ${total} articles`;
 }
 
 
