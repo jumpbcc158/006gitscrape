@@ -174,7 +174,7 @@ header .wrap {
     }
 
     .card { 
-      background: var(--card); border-radius: var(--radius-lg);
+      background: var(--card);
       box-shadow: var(--shadow); border: 1px solid var(--border-light);
       overflow: hidden; display: flex; flex-direction: column;
       transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -378,6 +378,12 @@ main.wrap {
 }
 
 
+.card .title {
+  font-size: 16px !important; /* Previously 20px */
+  line-height: 1.3;
+  margin-bottom: 8px;
+}
+
 
 /* Remove any bar from card titles */
 .card .title {
@@ -466,7 +472,7 @@ main.wrap {
 
 /* Make card layout robust and equal-height */
 .card {
-  height: 80%;
+  height: 100%;
   display: flex;
   flex-direction: column;
 }
@@ -478,7 +484,7 @@ main.wrap {
 }
 
 /* Hero (center) visuals */
-.card--lead .thumb { height: 320px; }
+.card--lead .thumb { height: 480px; }
 .card--lead .title { font-size: 24px; line-height: 1.3; }
 .card--lead .summary { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
 
@@ -562,10 +568,13 @@ main.wrap {
 }
 
 
+
 .card--lead {
+  height: 80% !important; /* Only the center card */
   display: flex;
   flex-direction: column;
 }
+
 
 .card--lead .pad {
   flex: 1; /* Push content up */
@@ -591,18 +600,19 @@ main.wrap {
 
 
 /* Make the hero image taller */
+
 .card--lead .thumb {
-  height: 480px !important; /* Increase from ~320px */
-  object-fit: cover; /* Keep aspect ratio clean */
+  height: 280px !important; /* Smaller hero image */
+  object-fit: cover; /* Keeps aspect ratio clean */
 }
 
+
 /* Make the title stand out */
+
 .card--lead .title {
-  font-size: 36px !important; /* Bigger headline */
-  font-weight: 700;
-  line-height: 1.3;
-  margin-bottom: 12px;
+  font-size: 28px !important; /* Reduce from 36px */
 }
+
 
 /* Optional: enlarge summary slightly */
 .card--lead .summary {
@@ -701,13 +711,6 @@ header .controls button {
 }
 
 
-#line {
-  display: none !important;
-}
-
-#source {
-  display: none !important;
-}
 
 
 .bbc-rail {
@@ -719,7 +722,17 @@ header .controls button {
 }
 
 
+.card .thumb {
+  border-top-left-radius: 0 !important;
+  border-top-right-radius: 0 !important;
+}
 
+#line {
+  display: none !important;
+}
+#source {
+  display: none !important;
+}
   </style>
 
 </head>
@@ -747,15 +760,13 @@ header .controls button {
           <option value="title_desc">🔤 Title Z–A</option>
         </select>
       </div>
-       
-        
-        
+
         <button class="btn-upload"
-        onclick="window.open('https://dextranet.sharepoint.com/:f:/r/sites/CompetitorsWatch/Shared%20Documents/02.%20Bars/Bar%20Competitor%20Files?csf=1&web=1&e=nLIOnR', '_blank')">
+        onclick="window.open('https://dextranet.sharepoint.com/:f:/r/sites/CompetitorsWatch/Shared%20Documents/02.%20Bars/Bar%20Competitor%20Files?csf=1&web=1&e=WbXXff', '_blank')">
         📂 Drop Unlisted Competitors Files
         </button>
 
-
+        
 
     </div>
     
