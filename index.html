@@ -264,22 +264,25 @@ header .wrap {
     
 
 /* --- Put title + filters on the SAME LINE --- */
+
+
 header .wrap {
-  display: flex !important;
-  align-items: center !important;         /* vertical centering */
-  justify-content: space-between !important; /* title left, filters right */
-  gap: 12px !important;
-  padding: 8px 16px !important;           /* trims the green bar height */
+  display: flex;
+  align-items: center;
+  justify-content: flex-start; /* Everything starts from the left */
+  gap: 24px; /* Space between logo/title and controls */
+  width: 100%;
 }
 
+
 /* Title block stays compact on the left */
+
 header .brand-vertical {
-  display: flex !important;
-  flex-direction: row !important;
-  align-items: center !important;
-  gap: 12px !important;
-  margin: 0 !important;
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
+
 
 /* Optional compact logo/title */
 header .logo {
