@@ -1,6 +1,8 @@
 <!doctype html>
 <html lang="en">
 <head>
+
+
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Competitor News</title>
@@ -26,7 +28,12 @@
       --radius-lg: 16px;
     }
     
-  
+  #line {
+  display: none !important;
+}
+#source {
+  display: none !important;
+}
   
 
     * { box-sizing: border-box; }
@@ -52,7 +59,7 @@
 
     
 header {
-  background: #00a99d; /* Solid Stribe green */
+  background: #0048b6; /* Solid Stribe green */
   color: #fff;
   box-shadow: var(--shadow-md);
   position: sticky;
@@ -74,12 +81,6 @@ header .wrap {
 }
 
 
-.brand-vertical {
-  display: flex;
-  flex-direction: row;
-  align-items: center;      /* Vertically center logo and text */
-  gap: 20px;                /* Space between logo and text */
-}
 
 .logo {
   width: 100px; /* ↓ Smaller logo */
@@ -102,6 +103,8 @@ header .wrap {
   padding: 0;
 }
 
+
+
 .brand-vertical h1 {
   font-size: 2em;
   font-weight: 700;
@@ -114,7 +117,21 @@ header .wrap {
   align-items: center; /* Vertically center text with logo */
 }
 
-    
+ 
+.brand-vertical .logo {
+  background: transparent;
+  padding: 0;
+  margin: 0;
+}
+
+#brandImg {
+  background: #fff;            /* White background */
+  border-radius: 10px;         /* Rounded corners */
+  box-shadow: var(--shadow-sm);/* Optional subtle shadow */
+  display: inline-block;       /* Ensure padding works */
+}
+
+   
 
     h1 { 
       margin: 0; 
@@ -318,6 +335,7 @@ header .brand-vertical h1 {
   line-height: 1.2 !important;
 }
 
+
 /* --- Filters: one line on the RIGHT --- */
 header .controls {
   display: flex !important;               /* change from grid → flex */
@@ -378,17 +396,13 @@ main.wrap {
 }
 
 
-.card .title {
-  font-size: 16px !important; /* Previously 20px */
-  line-height: 1.3;
-  margin-bottom: 8px;
-}
-
 
 /* Remove any bar from card titles */
 .card .title {
+  font-size: 16px !important; /* Previously 20px */;
   border-left: none !important;
   padding-left: 0 !important;
+  margin: 0 0 12px;
 }
 
 
@@ -431,7 +445,7 @@ main.wrap {
   line-height: 1.3;
 }
 .card--lead .summary {
-  -webkit-line-clamp: 4;
+  -webkit-line-clamp: 2;
 }
 
 /* Side stories smaller */
@@ -486,7 +500,7 @@ main.wrap {
 /* Hero (center) visuals */
 .card--lead .thumb { height: 480px; }
 .card--lead .title { font-size: 24px; line-height: 1.3; }
-.card--lead .summary { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.card--lead .summary { display: -webkit-box; -webkit-line-clamp: ; -webkit-box-orient: vertical; overflow: hidden; }
 
 /* Side (left/right) visuals: compact and clean */
 .card--side .thumb { height: 140px; }
@@ -727,12 +741,27 @@ header .controls button {
   border-top-right-radius: 0 !important;
 }
 
-#line {
-  display: none !important;
+
+.card .summary {
+  display: none !important; /* Hides the summary text */
 }
-#source {
-  display: none !important;
+
+.card .pad {
+  padding-bottom: 8 !important; /* Remove extra space reserved for summary */
 }
+
+
+.card .meta {
+  border-bottom: none !important; /* Remove the horizontal line */
+  padding-bottom: 8px !important; /* Reduce extra space */
+}
+
+
+.card .actions {
+  margin-top: 2px !important; /* Move buttons closer */
+}
+
+
   </style>
 
 </head>
@@ -745,9 +774,14 @@ header .controls button {
   <div class="wrap">
     <div class="brand-vertical">
       <div class="logo" title="Brand"><img id="brandImg" alt="Brand"></div>
-      <h1>Competitor News</h1>
+      <h1>Competitor News - CRP</h1>
     </div>
     <div class="controls">
+      <div class="brand-vertical" style="text-align:center;">
+      <div class="logo" title="Brand">
+        <img id="brandImg1" src="https://raw.githubusercontent.com/jumpbcc158/Logos/main/2.%20CRP.png" alt="Brand Logo" style="max-width:150px;">
+
+    </div>
       
       <div class="control"><select id="line"><option value="">All Product Lines</option><option value="CRP">CRP</option><option value="Bars">Bars</option><option value="Geotec">Geotec</option></select></div>
       <div class="control"><select id="source"><option value="">All Companies</option></select></div>
@@ -760,13 +794,17 @@ header .controls button {
           <option value="title_desc">🔤 Title Z–A</option>
         </select>
       </div>
-
-      <button class="btn-upload"
+       
+          <button class="btn-upload"
         onclick="window.open('https://dextranet.sharepoint.com/sites/CompetitorsWatch/Shared%20Documents/Forms/AllItems.aspx?FolderCTID=0x012000B87C45CAE72D364BAB34FCA0F1BAD5A0&id=%2Fsites%2FCompetitorsWatch%2FShared%20Documents%2F01%2E%20CRP%2FCRP%20Competitor%20Files', '_blank')">
         📂 Drop Unlisted Competitors Files
         </button>
-       
         
+            
+
+        
+
+
 
     </div>
     
@@ -1131,7 +1169,8 @@ function render() {
 
   const shownFrom = 5 + start + 1;
   const shownTo   = 5 + start + pageRows.length;
-  count.textContent = `Showing ${Math.min(shownTo, total)} of ${total} articles`;
+ //count.textContent = `Showing ${Math.min(shownTo, total)} of ${total} articles`;
+ count.textContent = `Welcome to Competitor Watch!`;
 }
 
 
