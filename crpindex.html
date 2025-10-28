@@ -855,7 +855,7 @@ header .controls button {
     .replace(/\s+/g, " ").trim();
 
   /* --- Canonical logos (fixed spelling: firep minova) --- */
-  const LOGO_MAP = {
+    const LOGO_MAP = {
     "dywidag": "DYWIDAG_16x9.png",
     "anker schroeder": "Anker_Schroeder_16x9.png",
     "ancon": "Leviat_Ancon_16x9.png",
@@ -870,7 +870,8 @@ header .controls button {
     "splice sleeve": "Splice_Sleeve_16x9.png",
     "boowon bms": "Boowon_BMS_16x9.png",
     "mateenbar": "Mateenbar_16x9.png",
-    "mst bar": "MST_Bar_16x9.png"
+    "mst bar": "MST_Bar_16x9.png",
+    "mateenbar pultron" : "Mateenbar_16x9.png"
   };
 
   /* --- Aliases coming from CSV (normalize to canonical) --- */
@@ -909,7 +910,8 @@ header .controls button {
     "sah": ["Bars", "Geotec"],
     "mateenbar": ["Geotec"],
     "mst bar": ["Geotec"],
-    "firep minova": ["Geotec"]
+    "firep minova": ["Geotec"],
+    "mateenbar pultron" : ["Geotec"]
   };
 
   /* --- Display name mapping (what the user sees) --- */
@@ -927,9 +929,10 @@ header .controls button {
     "splice sleeve": "Splice Sleeve",
     "mateenbar": "Mateenbar",
     "mst bar": "MST Bar",
-    "boowon bms": "Boowon BMS"
+    "boowon bms": "Boowon BMS",
+    "mateenbar pultron": "Mateenbar (Pultron)"
   };
-
+  
   function displayFor(canon) {
     if (!canon) return '';
     if (DISPLAY_NAME[canon]) return DISPLAY_NAME[canon];
