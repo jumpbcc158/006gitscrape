@@ -89,7 +89,7 @@ header .wrap {
   align-items: center;
   justify-content: center;
   background: #fff;
-  border-radius: 8px;
+  border-radius: 0px;
   margin: 0;
   padding: 0;
   box-shadow: none;
@@ -126,7 +126,7 @@ header .wrap {
 
 #brandImg {
   background: #fff;            /* White background */
-  border-radius: 10px;         /* Rounded corners */
+  border-radius: 0px;         /* Rounded corners */
   box-shadow: var(--shadow-sm);/* Optional subtle shadow */
   display: inline-block;       /* Ensure padding works */
 }
@@ -794,10 +794,11 @@ header .controls button {
           <option value="title_desc">🔤 Title Z–A</option>
         </select>
       </div>
-
+       
             
 
-      
+        
+
 
 
     </div>
@@ -848,8 +849,7 @@ header .controls button {
     .replace(/[^a-z0-9]+/g, " ")
     .replace(/\s+/g, " ").trim();
 
-  /* --- Canonical logos (fixed spelling: firep minova) --- */
-    const LOGO_MAP = {
+  const LOGO_MAP = {
     "dywidag": "DYWIDAG_16x9.png",
     "anker schroeder": "Anker_Schroeder_16x9.png",
     "ancon": "Leviat_Ancon_16x9.png",
@@ -865,7 +865,8 @@ header .controls button {
     "boowon bms": "Boowon_BMS_16x9.png",
     "mateenbar": "Mateenbar_16x9.png",
     "mst bar": "MST_Bar_16x9.png",
-    "mateenbar pultron" : "Mateenbar_16x9.png"
+    "mateenbar pultron" : "Mateenbar_16x9.png",
+    "nmb splice sleeve" : "NMB_Splice_Sleeve_16x9.png"
   };
 
   /* --- Aliases coming from CSV (normalize to canonical) --- */
@@ -894,7 +895,7 @@ header .controls button {
     "moment": ["CRP"],
     "ancon": ["CRP"],
     "nvent lenton": ["CRP"],
-    "splice sleeve": ["CRP"],
+    "nmb splice sleeve": ["CRP"],
     "boowon bms": ["CRP"],
     "dywidag": ["Bars", "Geotec"],
     "anker schroeder": ["Bars"],
@@ -906,6 +907,7 @@ header .controls button {
     "mst bar": ["Geotec"],
     "firep minova": ["Geotec"],
     "mateenbar pultron" : ["Geotec"]
+    
   };
 
   /* --- Display name mapping (what the user sees) --- */
@@ -920,7 +922,7 @@ header .controls button {
     "sah": "Stahlwerk Annahütte",
     "macalloy": "Macalloy",
     "williams form": "Williams Form",
-    "splice sleeve": "Splice Sleeve",
+    "nmb splice sleeve": "NMB Splice Sleeve",
     "mateenbar": "Mateenbar",
     "mst bar": "MST Bar",
     "boowon bms": "Boowon BMS",
