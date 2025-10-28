@@ -635,6 +635,58 @@ def scrape_williams_form():
     return articles_data
 # ---- Configurable Source List ----
 
+
+def scrape_pultron_news():
+    url = "https://pultron.com/insights/pultron-composite-news/"
+    articles_data = []
+    response = requests.get(url, headers=HEADERS, verify=False)
+    response.raise_for_status()
+    soup = BeautifulSoup(response.content, 'html.parser')
+
+    # Each article block
+    articles = soup.select('div.blog-type-blog')  # container for each post
+    for article in articles:
+        # Title and link
+        h2_tag = article.find('h2')
+        a_tag = h2_tag.find_parent('a') if h2_tag else None
+        title = h2_tag.get_text(strip=True) if h2_tag else ""
+        link = a_tag['href'] if a_tag and a_tag.has_attr('href') else ""
+
+        # Image
+        img_tag = article.find('img', class_='img-fluid')
+        img_url = img_tag['src'] if img_tag else ""
+        if img_url.startswith('/'):
+            img_url = f"https://pultron.com{img_url}"  # make absolute
+
+        # Date
+        date_text = ""
+        article_date = None
+        date_tag = article.find('div', class_='blog-post-meta')
+        if date_tag:
+            date_text = date_tag.get_text(strip=True)
+            try:
+                article_date = datetime.strptime(date_text, "%d %B %Y")
+            except Exception:
+                article_date = None
+
+        # Summary (optional)
+        summary_tag = article.find('div', class_='post-summary')
+        summary = summary_tag.get_text(strip=True) if summary_tag else ""
+
+        articles_data.append({
+            "Title": title,
+            "DateText": date_text,
+            "Date": article_date,
+            "Link": link,
+            "Image": img_url,
+            "Summary": summary,
+            "Source": "Mateenbar Pultron"
+        })
+
+    return articles_data
+
+
+
 def scrape_minova_apac_news():
     import re
     import requests
@@ -930,6 +982,7 @@ COMPETITOR_SOURCES = [
     ("Williams Form", scrape_williams_form),
     ("FiReP Minova",scrape_minova_apac_news),
     ("MST Bar",scrape_tagembed_widget_headless),
+    ("Mateenbar Pultron", scrape_pultron_news),
 ]
 
 def scrape_with_status(scrape_func, site_name):
