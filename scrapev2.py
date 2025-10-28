@@ -20,6 +20,92 @@ HEADERS = {
 }
 
 # ---- Scraper Functions ----
+def scrape_mateenbar_and_pultron():
+    all_articles = []
+
+    # --- Pultron News ---
+    url_pultron = "https://pultron.com/insights/pultron-composite-news/"
+    response_pultron = requests.get(url_pultron, headers=HEADERS, verify=False)
+    response_pultron.raise_for_status()
+    soup_pultron = BeautifulSoup(response_pultron.content, 'html.parser')
+
+    articles_pultron = soup_pultron.select('div.blog-type-blog')
+    for article in articles_pultron:
+        h2_tag = article.find('h2')
+        a_tag = h2_tag.find_parent('a') if h2_tag else None
+        title = h2_tag.get_text(strip=True) if h2_tag else ""
+        link = a_tag['href'] if a_tag and a_tag.has_attr('href') else ""
+        img_tag = article.find('img', class_='img-fluid')
+        img_url = img_tag['src'] if img_tag else ""
+        if img_url.startswith('/'):
+            img_url = f"https://pultron.com{img_url}"
+
+        date_text = ""
+        article_date = None
+        date_tag = article.find('div', class_='blog-post-meta')
+        if date_tag:
+            date_text = date_tag.get_text(strip=True)
+            try:
+                article_date = datetime.strptime(date_text, "%d %B %Y")
+            except Exception:
+                article_date = None
+
+        summary_tag = article.find('div', class_='post-summary')
+        summary = summary_tag.get_text(strip=True) if summary_tag else ""
+
+        all_articles.append({
+            "Title": title,
+            "DateText": date_text,
+            "Date": article_date.strftime("%B %d, %Y") if article_date else date_text,
+            "Link": link,
+            "Image": img_url,
+            "Summary": summary,
+            "Source": "Mateenbar Pultron"
+        })
+
+    # --- Mateenbar Blog ---
+    url_mateenbar = "https://mateenbar.com/en-us/blog/"
+    response_mateenbar = requests.get(url_mateenbar, headers=HEADERS, verify=False)
+    response_mateenbar.raise_for_status()
+    soup_mateenbar = BeautifulSoup(response_mateenbar.content, "html.parser")
+
+    article_blocks = soup_mateenbar.find_all("article")
+    for block in article_blocks:
+        title_tag = block.find("a", itemprop="url")
+        title = title_tag.get("title", "").strip() if title_tag else ""
+        link = title_tag.get("href", "") if title_tag else ""
+        if link and not link.startswith("http"):
+            link = "https://mateenbar.com" + link
+
+        # Extract date from URL
+        date_text = ""
+        article_date = None
+        if link:
+            parts = link.split("/")
+            if len(parts) >= 6:
+                year, month, day = parts[4], parts[5], parts[6]
+                date_text = f"{year}-{month}-{day}"
+                try:
+                    article_date = datetime.strptime(date_text, "%Y-%m-%d")
+                except ValueError:
+                    article_date = None
+
+        img_tag = block.find("img", class_="wp-post-image")
+        image_url = img_tag["src"] if img_tag and img_tag.has_attr("src") else ""
+        summary_tag = block.find("div", class_="mkd-post-text-inner")
+        summary_text = summary_tag.get_text(strip=True) if summary_tag else ""
+
+        all_articles.append({
+            "Title": title,
+            "DateText": date_text,
+            "Date": article_date.strftime("%B %d, %Y") if article_date else date_text,
+            "Link": link,
+            "Image": image_url,
+            "Summary": summary_text,
+            "Source": "Mateenbar Pultron"
+        })
+
+    return all_articles
 
 def scrape_ancon():
     url = "https://www.ancon.co.uk/whats-new"
@@ -636,54 +722,6 @@ def scrape_williams_form():
 # ---- Configurable Source List ----
 
 
-def scrape_pultron_news():
-    url = "https://pultron.com/insights/pultron-composite-news/"
-    articles_data = []
-    response = requests.get(url, headers=HEADERS, verify=False)
-    response.raise_for_status()
-    soup = BeautifulSoup(response.content, 'html.parser')
-
-    # Each article block
-    articles = soup.select('div.blog-type-blog')  # container for each post
-    for article in articles:
-        # Title and link
-        h2_tag = article.find('h2')
-        a_tag = h2_tag.find_parent('a') if h2_tag else None
-        title = h2_tag.get_text(strip=True) if h2_tag else ""
-        link = a_tag['href'] if a_tag and a_tag.has_attr('href') else ""
-
-        # Image
-        img_tag = article.find('img', class_='img-fluid')
-        img_url = img_tag['src'] if img_tag else ""
-        if img_url.startswith('/'):
-            img_url = f"https://pultron.com{img_url}"  # make absolute
-
-        # Date
-        date_text = ""
-        article_date = None
-        date_tag = article.find('div', class_='blog-post-meta')
-        if date_tag:
-            date_text = date_tag.get_text(strip=True)
-            try:
-                article_date = datetime.strptime(date_text, "%d %B %Y")
-            except Exception:
-                article_date = None
-
-        # Summary (optional)
-        summary_tag = article.find('div', class_='post-summary')
-        summary = summary_tag.get_text(strip=True) if summary_tag else ""
-
-        articles_data.append({
-            "Title": title,
-            "DateText": date_text,
-            "Date": article_date,
-            "Link": link,
-            "Image": img_url,
-            "Summary": summary,
-            "Source": "Mateenbar Pultron"
-        })
-
-    return articles_data
 
 
 
@@ -969,7 +1007,61 @@ def scrape_tagembed_widget_headless(
         deduped = deduped[:max_posts]
 
     return deduped
+def scrape_splicesleeve_events():
+    url = "https://www.splicesleeve.com/events"
+    response = requests.get(url, headers=HEADERS, verify=False)
+    response.raise_for_status()
 
+    soup = BeautifulSoup(response.content, "html.parser")
+    events_data = []
+
+    # Each event block
+    event_blocks = soup.find_all("div", class_="box_wrapper")
+
+    for block in event_blocks:
+        # Description (used as Title base)
+        description = block.find("div", class_="description")
+        description_text = description.get_text(strip=True) if description else ""
+
+        # Start and End dates
+        start_date = block.find("div", class_="data-inizio")
+        start_text = start_date.get_text(strip=True).replace("Start:", "").strip() if start_date else ""
+
+        end_date = block.find("div", class_="data-fine")
+        end_text = end_date.get_text(strip=True).replace("End:", "").strip() if end_date else ""
+
+        # Month and Year
+        month = block.find("div", class_="data-evento-destra")
+        month_text = month.get_text(strip=True) if month else ""
+
+        year = block.find("div", class_="data-evento-destra-2")
+        year_text = year.get_text(strip=True) if year else ""
+
+        # Image (optional)
+        img_tag = block.find("img")
+        image_url = img_tag["src"] if img_tag and img_tag.has_attr("src") else ""
+
+        # Link (fixed for all)
+        link = "https://www.splicesleeve.com/events"
+
+        # Combine Title: description + start + end
+        title_combined = f"{description_text} start date {start_text} end date {end_text}"
+
+        # DateText and Date from month/year
+        datetime_str = f"{month_text} {year_text}"
+
+        # Append in requested format
+        events_data.append({
+            "Title": title_combined,
+            "DateText": datetime_str,
+            "Date": datetime_str,
+            "Link": link,
+            "Image": image_url,
+            "Summary": description_text,
+            "Source": "nmb splice sleeve"
+        })
+
+    return events_data
 
 COMPETITOR_SOURCES = [
     ("Ancon", scrape_ancon),
@@ -982,7 +1074,8 @@ COMPETITOR_SOURCES = [
     ("Williams Form", scrape_williams_form),
     ("FiReP Minova",scrape_minova_apac_news),
     ("MST Bar",scrape_tagembed_widget_headless),
-    ("Mateenbar Pultron", scrape_pultron_news),
+    ("Mateenbar Pultron", scrape_mateenbar_and_pultron),
+    ("nmb splice sleeve",scrape_splicesleeve_events),
 ]
 
 def scrape_with_status(scrape_func, site_name):
