@@ -11,5 +11,5 @@ FiReP Minova,success,44
 MST Bar,"error: Playwright is required. Install with:
   pip install playwright
   playwright install",0
-Mateenbar Pultron,"error: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))",0
+Mateenbar Pultron,success,23
 nmb splice sleeve,success,8
