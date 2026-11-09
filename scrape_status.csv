@@ -11,5 +11,5 @@ FiReP Minova,success,0
 MST Bar,"error: Playwright is required. Install with:
   pip install playwright
   playwright install",0
-Mateenbar Pultron,error: 403 Client Error: Forbidden for url: https://pultron.com/insights/pultron-composite-news/,0
+Mateenbar Pultron,success,23
 nmb splice sleeve,success,8
